@@ -1,1 +1,19 @@
-Testando a persistencia no arquivo
+{
+  "todos": [
+    {
+      "date": "2023-11-20T13:51:30.759Z",
+      "content": "Primeira TODO",
+      "done": false
+    },
+    {
+      "date": "2023-11-20T13:51:30.759Z",
+      "content": "Segunda TODO",
+      "done": false
+    },
+    {
+      "date": "2023-11-20T13:51:30.759Z",
+      "content": "Terceira TODO",
+      "done": false
+    }
+  ]
+}
