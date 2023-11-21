@@ -20,7 +20,9 @@
     "jsx": "preserve",
     "baseUrl": ".",
     "paths": {
-      "@ui/*": ["src/ui/*"]
+      "@ui/*": ["src/ui/*"],
+      "@db-crud-todo": ["core/actions/index.ts"],
+      "@server/*": ["src/server/*"]
     },
     "plugins": [
       {
