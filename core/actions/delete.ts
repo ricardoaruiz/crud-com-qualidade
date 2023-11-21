@@ -1,8 +1,8 @@
-import fs from 'fs';
+import fs from "fs";
 
 import { UUID } from "../types";
-import { DB_FILE_PATH } from '../constants';
-import { readTodos } from './read';
+import { DB_FILE_PATH } from "../constants";
+import { readTodos } from "./read";
 
 /**
  * Removes a todo item from the todos list based on the given id.
@@ -17,12 +17,12 @@ export function deleteTodo(id: UUID): void {
     return;
   }
 
-  const todoIndex = todos.findIndex(t => t.id === id);
-  
+  const todoIndex = todos.findIndex((t) => t.id === id);
+
   if (todoIndex === -1) {
-    throw new Error('Todo not found');
+    throw new Error("Todo not found");
   }
 
   todos.splice(todoIndex, 1);
-  fs.writeFileSync(DB_FILE_PATH, JSON.stringify({todos}, null, 2));
+  fs.writeFileSync(DB_FILE_PATH, JSON.stringify({ todos }, null, 2));
 }

@@ -1,7 +1,7 @@
-import fs from 'fs';
+import fs from "fs";
 
 import { Todo } from "../types";
-import { DB_FILE_PATH } from '../constants';
+import { DB_FILE_PATH } from "../constants";
 
 /**
  * Reads the todo list from the database file.
@@ -9,7 +9,7 @@ import { DB_FILE_PATH } from '../constants';
  * @return {Array<Todo>} The list of todos.
  */
 export function readTodos(): Array<Todo> {
-  const content = fs.readFileSync(DB_FILE_PATH, 'utf-8');
-  const parsedContent = JSON.parse(content || '{}');
+  const content = fs.readFileSync(DB_FILE_PATH, "utf-8");
+  const parsedContent = JSON.parse(content || "{}");
   return parsedContent.todos || [];
 }
