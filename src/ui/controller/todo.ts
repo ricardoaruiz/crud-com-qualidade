@@ -1,8 +1,12 @@
-const TODOS_URL = "api/todos";
-const get = async () => {
-  const response = await fetch(TODOS_URL);
-  const data = await response.json();
-  return data.todos || [];
+import { todoRepository } from "@ui/repository/todo";
+
+interface TodoControllerGetParams {
+  page?: number;
+  limit?: number;
+}
+
+const get = async ({ page, limit }: TodoControllerGetParams = {}) => {
+  return todoRepository.get({ page: page || 1, limit: limit || 10 });
 };
 
 export const todoController = {

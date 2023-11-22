@@ -12,10 +12,29 @@ const bg = "/bg.jpeg"; // inside public folder
 
 function HomePage() {
   const [todos, setTodos] = React.useState<HomeTodo[]>([]);
+  const [currentPage, setCurrentPage] = React.useState(1);
+  const [totalPages, setTotalPages] = React.useState(1);
+  const [isLoading, setIsLoading] = React.useState(true);
+
+  const hasMorePage = currentPage + 1 <= totalPages;
+
+  const handleNextPage = React.useCallback(() => {
+    if (hasMorePage) {
+      setCurrentPage(currentPage + 1);
+    }
+  }, [currentPage, totalPages]);
 
   React.useEffect(() => {
-    todoController.get().then((todos) => setTodos(todos));
-  }, []);
+    setIsLoading(true);
+
+    todoController
+      .get({ page: currentPage, limit: 2 })
+      .then(({ todos, pages }) => {
+        setTodos((currentTodos) => [...currentTodos, ...todos]);
+        setTotalPages(pages);
+        setIsLoading(false);
+      });
+  }, [currentPage]);
 
   return (
     <main>
@@ -54,35 +73,45 @@ function HomePage() {
           </thead>
 
           <tbody>
-            {todos.map(({ id, content }) => (
-              <tr key={id}>
-                <td>
-                  <input type="checkbox" />
-                </td>
-                <td>{id.substring(0, 4)}</td>
-                <td>{content}</td>
-                <td align="right">
-                  <button data-type="delete">Apagar</button>
+            {isLoading && (
+              <tr>
+                <td colSpan={4} align="center" style={{ textAlign: "center" }}>
+                  Carregando...
                 </td>
               </tr>
-            ))}
+            )}
+
+            {!isLoading && !todos.length && (
+              <tr>
+                <td colSpan={4} align="center">
+                  Nenhum item encontrado
+                </td>
+              </tr>
+            )}
+
+            {!isLoading &&
+              !!todos.length &&
+              todos.map(({ id, content }) => (
+                <tr key={id}>
+                  <td>
+                    <input type="checkbox" />
+                  </td>
+                  <td>{id.substring(0, 4)}</td>
+                  <td>{content}</td>
+                  <td align="right">
+                    <button data-type="delete">Apagar</button>
+                  </td>
+                </tr>
+              ))}
 
             <tr>
               <td colSpan={4} align="center" style={{ textAlign: "center" }}>
-                Carregando...
-              </td>
-            </tr>
-
-            <tr>
-              <td colSpan={4} align="center">
-                Nenhum item encontrado
-              </td>
-            </tr>
-
-            <tr>
-              <td colSpan={4} align="center" style={{ textAlign: "center" }}>
-                <button data-type="load-more">
-                  Carregar mais{" "}
+                <button
+                  data-type="load-more"
+                  onClick={handleNextPage}
+                  disabled={!hasMorePage}
+                >
+                  Página {currentPage} de {totalPages} - Carregar mais{" "}
                   <span
                     style={{
                       display: "inline-block",
