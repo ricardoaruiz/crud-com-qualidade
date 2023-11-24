@@ -1,4 +1,4 @@
-import { readTodos } from "@db-crud-todo";
+import { todoRepository } from "@server/repository/todo";
 import { NextApiRequest, NextApiResponse } from "next";
 
 const create = (req: NextApiRequest, res: NextApiResponse) => {
@@ -6,9 +6,35 @@ const create = (req: NextApiRequest, res: NextApiResponse) => {
   res.status(201).json(req.body);
 };
 
-const read = (_: NextApiRequest, res: NextApiResponse) => {
-  const todos = readTodos();
-  res.status(200).json({ todos });
+/**
+ * Reads data from the API based on the provided request parameters.
+ *
+ * @param {NextApiRequest} req - The request object containing the query parameters.
+ * @param {NextApiResponse} res - The response object used to send the data back to the client.
+ * @return {void} The function does not return a value directly, but sends the data as a response.
+ */
+const read = (req: NextApiRequest, res: NextApiResponse) => {
+  const { page, limit } = req.query;
+
+  const parsedPage = Number(page);
+  if (page && isNaN(parsedPage)) {
+    res.status(400).json({ message: "page must be a number" });
+    return;
+  }
+
+  const parsedLimit = Number(limit);
+  if (limit && isNaN(parsedLimit)) {
+    res.status(400).json({ message: "limit must be a number" });
+    return;
+  }
+
+  const params = {
+    page: parsedPage,
+    limit: parsedLimit,
+  };
+
+  const todos = todoRepository.get(params);
+  res.status(200).json(todos);
 };
 
 const update = (req: NextApiRequest, res: NextApiResponse) => {

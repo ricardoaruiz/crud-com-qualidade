@@ -12,29 +12,30 @@ const bg = "/bg.jpeg"; // inside public folder
 
 function HomePage() {
   const [todos, setTodos] = React.useState<HomeTodo[]>([]);
-  const [currentPage, setCurrentPage] = React.useState(1);
-  const [totalPages, setTotalPages] = React.useState(1);
+  const [page, setPage] = React.useState(1);
+  const [pages, setPages] = React.useState(1);
   const [isLoading, setIsLoading] = React.useState(true);
-
-  const hasMorePage = currentPage + 1 <= totalPages;
+  const hasMorePages = page + 1 <= pages;
 
   const handleNextPage = React.useCallback(() => {
-    if (hasMorePage) {
-      setCurrentPage(currentPage + 1);
+    if (hasMorePages) {
+      setPage(page + 1);
     }
-  }, [currentPage, totalPages]);
+  }, [page, hasMorePages]);
 
   React.useEffect(() => {
     setIsLoading(true);
 
     todoController
-      .get({ page: currentPage, limit: 2 })
+      .get({ page, limit: 1 })
       .then(({ todos, pages }) => {
         setTodos((currentTodos) => [...currentTodos, ...todos]);
-        setTotalPages(pages);
+        setPages(pages);
+      })
+      .finally(() => {
         setIsLoading(false);
       });
-  }, [currentPage]);
+  }, [page]);
 
   return (
     <main>
@@ -104,26 +105,28 @@ function HomePage() {
                 </tr>
               ))}
 
-            <tr>
-              <td colSpan={4} align="center" style={{ textAlign: "center" }}>
-                <button
-                  data-type="load-more"
-                  onClick={handleNextPage}
-                  disabled={!hasMorePage}
-                >
-                  Página {currentPage} de {totalPages} - Carregar mais{" "}
-                  <span
-                    style={{
-                      display: "inline-block",
-                      marginLeft: "4px",
-                      fontSize: "1.2em",
-                    }}
+            {hasMorePages && (
+              <tr>
+                <td colSpan={4} align="center" style={{ textAlign: "center" }}>
+                  <button
+                    data-type="load-more"
+                    onClick={handleNextPage}
+                    disabled={!hasMorePages}
                   >
-                    ↓
-                  </span>
-                </button>
-              </td>
-            </tr>
+                    Página {page} de {pages} - Carregar mais{" "}
+                    <span
+                      style={{
+                        display: "inline-block",
+                        marginLeft: "4px",
+                        fontSize: "1.2em",
+                      }}
+                    >
+                      ↓
+                    </span>
+                  </button>
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </section>
