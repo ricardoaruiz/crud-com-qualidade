@@ -31,7 +31,7 @@ const read = (req: NextApiRequest, res: NextApiResponse) => {
   const params = {
     page: parsedPage,
     limit: parsedLimit,
-    search: String(search),
+    search: search ? String(search) : undefined,
   };
 
   const todos = todoRepository.get(params);
