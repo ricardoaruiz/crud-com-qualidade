@@ -1,6 +1,7 @@
 import React from "react";
 import { GlobalStyles } from "@ui/theme/GlobalStyles";
 import { todoController } from "@ui/controller/todo";
+import { useDebounce } from "@ui/hooks/useDebounce";
 
 type HomeTodo = {
   id: string;
@@ -18,6 +19,7 @@ type LoadTodosParams = {
   page: number;
   limit: number;
   isAppendMode?: boolean;
+  search?: string;
 };
 
 function HomePage() {
@@ -26,21 +28,35 @@ function HomePage() {
   const [page, setPage] = React.useState(1);
   const [pages, setPages] = React.useState(1);
   const [isLoading, setIsLoading] = React.useState(true);
+
+  /**
+   * Search state
+   */
+  const [search, setSearch] = React.useState("");
+  const debouncedSearch = useDebounce(search, 500);
+
+  /**
+   * Filters todos by content.
+   */
+  const homeTodos = todoController.filterTodosByContent<HomeTodo>(
+    debouncedSearch,
+    todos,
+  );
   const hasMorePages = page + 1 <= pages;
-  const noDataFound = todos.length === 0;
+  const noDataFound = homeTodos.length === 0;
 
   /**
    * Loads todos from the API.
    */
   const loadTodos = React.useCallback(
-    ({ page, limit, isAppendMode = false }: LoadTodosParams) => {
+    ({ page, limit, isAppendMode = false, search }: LoadTodosParams) => {
       setIsLoading(true);
 
       todoController
-        .get({ page, limit })
+        .get({ page, limit, search })
         .then(({ todos, pages }) => {
           setTodos((currentTodos) =>
-            isAppendMode ? [...currentTodos, ...todos] : todos,
+            !isAppendMode ? todos : [...currentTodos, ...todos],
           );
           setPages(pages);
         })
@@ -93,7 +109,13 @@ function HomePage() {
 
       <section>
         <form>
-          <input type="text" placeholder="Filtrar lista atual, ex: Dentista" />
+          <input
+            type="text"
+            placeholder="Filtrar lista atual, ex: Dentista"
+            onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+              setSearch(event.target.value)
+            }
+          />
         </form>
 
         <table border={1}>
@@ -126,8 +148,8 @@ function HomePage() {
             )}
 
             {!isLoading &&
-              !!todos.length &&
-              todos.map(({ id, content }) => (
+              !!homeTodos.length &&
+              homeTodos.map(({ id, content }) => (
                 <tr key={id}>
                   <td>
                     <input type="checkbox" />

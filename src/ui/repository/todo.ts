@@ -1,6 +1,6 @@
 const TODOS_URL = "api/todos";
 
-interface Todo {
+export interface Todo {
   id: string;
   content: string;
   date: Date;
@@ -10,6 +10,7 @@ interface Todo {
 interface TodoRepositoryGetParams {
   page: number;
   limit: number;
+  search?: string;
 }
 
 interface TodoRespositoryGetOuput {
@@ -24,15 +25,18 @@ interface TodoRespositoryGetOuput {
  * @param {TodoRepositoryGetParams} params - The parameters for the GET request.
  * @param {number} params.page - The page number to retrieve.
  * @param {number} params.limit - The maximum number of todos per page.
+ * @param {number} params.search - Search term to filter todos.
  * @return {Promise<TodoRespositoryGetOuput>} A promise that resolves to the paginated todos.
  */
 async function get({
   page,
   limit,
+  search = "",
 }: TodoRepositoryGetParams): Promise<TodoRespositoryGetOuput> {
   const URL = `${TODOS_URL}?${new URLSearchParams({
     page: page.toString(),
     limit: limit.toString(),
+    search,
   }).toString()}`;
 
   const response = await fetch(URL);

@@ -14,7 +14,7 @@ const create = (req: NextApiRequest, res: NextApiResponse) => {
  * @return {void} The function does not return a value directly, but sends the data as a response.
  */
 const read = (req: NextApiRequest, res: NextApiResponse) => {
-  const { page, limit } = req.query;
+  const { page, limit, search } = req.query;
 
   const parsedPage = Number(page);
   if (page && isNaN(parsedPage)) {
@@ -31,6 +31,7 @@ const read = (req: NextApiRequest, res: NextApiResponse) => {
   const params = {
     page: parsedPage,
     limit: parsedLimit,
+    search: String(search),
   };
 
   const todos = todoRepository.get(params);
