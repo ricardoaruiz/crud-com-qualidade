@@ -50,6 +50,9 @@ async function get({
   };
 }
 
+/**
+ * The todo repository UI
+ */
 export const todoRepository = {
   get,
 };

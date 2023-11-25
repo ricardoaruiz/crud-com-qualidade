@@ -32,6 +32,9 @@ function filterTodosByContent<Todo>(
   );
 }
 
+/**
+ * The todo controller UI.
+ */
 export const todoController = {
   get,
   filterTodosByContent,

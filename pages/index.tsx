@@ -8,7 +8,6 @@ type HomeTodo = {
   content: string;
 };
 
-// const bg = "https://mariosouto.com/cursos/crudcomqualidade/bg";
 const bg = "/bg.jpeg"; // inside public folder
 const PAGE_LIMIT = 2;
 
@@ -18,12 +17,12 @@ const PAGE_LIMIT = 2;
 type LoadTodosParams = {
   page: number;
   limit: number;
-  isAppendMode?: boolean;
   search?: string;
 };
 
 function HomePage() {
   const firstRender = React.useRef(true);
+
   const [todos, setTodos] = React.useState<HomeTodo[]>([]);
   const [page, setPage] = React.useState(1);
   const [pages, setPages] = React.useState(1);
@@ -49,15 +48,13 @@ function HomePage() {
    * Loads todos from the API.
    */
   const loadTodos = React.useCallback(
-    ({ page, limit, isAppendMode = false, search }: LoadTodosParams) => {
+    ({ page, limit, search }: LoadTodosParams) => {
       setIsLoading(true);
 
       todoController
         .get({ page, limit, search })
         .then(({ todos, pages }) => {
-          setTodos((currentTodos) =>
-            !isAppendMode ? todos : [...currentTodos, ...todos],
-          );
+          setTodos((currentTodos) => [...currentTodos, ...todos]);
           setPages(pages);
         })
         .finally(() => {
@@ -71,12 +68,20 @@ function HomePage() {
    * Handles the next page.
    */
   const handleNextPage = React.useCallback(() => {
-    if (hasMorePages) {
-      const nextPage = page + 1;
-      setPage(nextPage);
-      loadTodos({ page: nextPage, limit: PAGE_LIMIT, isAppendMode: true });
-    }
-  }, [hasMorePages, loadTodos, page]);
+    const nextPage = page + 1;
+    setPage(nextPage);
+    loadTodos({ page: nextPage, limit: PAGE_LIMIT });
+  }, [loadTodos, page]);
+
+  /**
+   * Handles search change.
+   */
+  const handleSearchChange = React.useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setSearch(event.target.value);
+    },
+    [],
+  );
 
   /**
    * Handles first load.
@@ -112,9 +117,7 @@ function HomePage() {
           <input
             type="text"
             placeholder="Filtrar lista atual, ex: Dentista"
-            onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-              setSearch(event.target.value)
-            }
+            onChange={handleSearchChange}
           />
         </form>
 
