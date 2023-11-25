@@ -5,7 +5,7 @@ module.exports = {
     es2021: true,
     node: true,
   },
-  plugins: ["react", "prettier", "@typescript-eslint"],
+  plugins: ["react", "react-hooks", "prettier", "@typescript-eslint"],
   extends: [
     "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
@@ -27,5 +27,7 @@ module.exports = {
   rules: {
     "no-console": "error",
     "react/no-unknown-property": ["error", { ignore: ["jsx", "global"] }],
+    "react-hooks/rules-of-hooks": "error", // Checks rules of Hooks
+    "react-hooks/exhaustive-deps": "warn", // Checks effect dependencies
   },
 };

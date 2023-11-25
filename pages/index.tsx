@@ -9,33 +9,68 @@ type HomeTodo = {
 
 // const bg = "https://mariosouto.com/cursos/crudcomqualidade/bg";
 const bg = "/bg.jpeg"; // inside public folder
+const PAGE_LIMIT = 2;
+
+/**
+ * load todos function params type
+ */
+type LoadTodosParams = {
+  page: number;
+  limit: number;
+  isAppendMode?: boolean;
+};
 
 function HomePage() {
+  const firstRender = React.useRef(true);
   const [todos, setTodos] = React.useState<HomeTodo[]>([]);
   const [page, setPage] = React.useState(1);
   const [pages, setPages] = React.useState(1);
   const [isLoading, setIsLoading] = React.useState(true);
   const hasMorePages = page + 1 <= pages;
+  const noDataFound = todos.length === 0;
 
+  /**
+   * Loads todos from the API.
+   */
+  const loadTodos = React.useCallback(
+    ({ page, limit, isAppendMode = false }: LoadTodosParams) => {
+      setIsLoading(true);
+
+      todoController
+        .get({ page, limit })
+        .then(({ todos, pages }) => {
+          setTodos((currentTodos) =>
+            isAppendMode ? [...currentTodos, ...todos] : todos,
+          );
+          setPages(pages);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    },
+    [],
+  );
+
+  /**
+   * Handles the next page.
+   */
   const handleNextPage = React.useCallback(() => {
     if (hasMorePages) {
-      setPage(page + 1);
+      const nextPage = page + 1;
+      setPage(nextPage);
+      loadTodos({ page: nextPage, limit: PAGE_LIMIT, isAppendMode: true });
     }
-  }, [page, hasMorePages]);
+  }, [hasMorePages, loadTodos, page]);
 
+  /**
+   * Handles first load.
+   */
   React.useEffect(() => {
-    setIsLoading(true);
-
-    todoController
-      .get({ page, limit: 1 })
-      .then(({ todos, pages }) => {
-        setTodos((currentTodos) => [...currentTodos, ...todos]);
-        setPages(pages);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-  }, [page]);
+    if (firstRender.current) {
+      firstRender.current = false;
+      loadTodos({ page: 1, limit: PAGE_LIMIT });
+    }
+  }, [loadTodos]);
 
   return (
     <main>
@@ -82,7 +117,7 @@ function HomePage() {
               </tr>
             )}
 
-            {!isLoading && !todos.length && (
+            {!isLoading && noDataFound && (
               <tr>
                 <td colSpan={4} align="center">
                   Nenhum item encontrado
