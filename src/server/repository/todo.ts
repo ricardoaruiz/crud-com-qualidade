@@ -1,4 +1,4 @@
-import { readTodos } from "@db-crud-todo";
+import { readTodos, createTodo } from "@db-crud-todo";
 
 interface Todo {
   id: string;
@@ -20,19 +20,19 @@ interface TodosRepositoryGetOutput {
 }
 
 /**
- * Retrieves paginated todos based on the specified parameters.
+ * Retrieves a list of todos based on the provided parameters.
  *
- * @param {TodoRepositoryGetParams} params - The parameters for pagination.
- * @param {number} params.page - The page number.
- * @param {number} params.limit - The number of todos per page.
- * @param {number} params.search - The search term.
- * @returns {object} - An object containing the paginated todos, total count, and number of pages.
+ * @param {TodoRepositoryGetParams} params - The parameters for the get operation.
+ * @param {number} params.page - The page number to retrieve.
+ * @param {number} params.limit - The maximum number of todos to retrieve per page.
+ * @param {string} params.search - The search string to filter todos by their content.
+ * @returns {Promise<TodosRepositoryGetOutput>} A promise that resolves to the retrieved todos.
  */
-const get = ({
+const get = async ({
   page,
   limit,
   search,
-}: TodoRepositoryGetParams): TodosRepositoryGetOutput => {
+}: TodoRepositoryGetParams): Promise<TodosRepositoryGetOutput> => {
   const TODOS_FROM_DB = readTodos().filter((todo) => {
     if (search) {
       return todo.content
@@ -59,6 +59,17 @@ const get = ({
   };
 };
 
+/**
+ * Creates a new post with the given content.
+ *
+ * @param {string} content - The content of the post.
+ * @return {Promise<Todo>} - A Promise that resolves to the created post.
+ */
+const post = async (content: string): Promise<Todo> => {
+  return createTodo(content);
+};
+
 export const todoRepository = {
   get,
+  post,
 };

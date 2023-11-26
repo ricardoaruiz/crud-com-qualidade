@@ -22,11 +22,13 @@ type LoadTodosParams = {
 
 function HomePage() {
   const firstRender = React.useRef(true);
+  const newTodoInput = React.useRef<HTMLInputElement | null>(null);
 
   const [todos, setTodos] = React.useState<HomeTodo[]>([]);
   const [page, setPage] = React.useState(1);
   const [pages, setPages] = React.useState(1);
   const [isLoading, setIsLoading] = React.useState(true);
+  const [isCreating, setIsCreating] = React.useState(false);
 
   /**
    * Search state
@@ -57,12 +59,37 @@ function HomePage() {
           setTodos((currentTodos) => [...currentTodos, ...todos]);
           setPages(pages);
         })
+        .catch(() => {
+          alert("Something went wrong. Please try again.");
+        })
         .finally(() => {
           setIsLoading(false);
         });
     },
     [],
   );
+
+  /**
+   * Creates a new todo.
+   */
+  const createTodo = React.useCallback(async () => {
+    if (!newTodoInput.current?.value) {
+      return;
+    }
+    setIsCreating(true);
+
+    todoController
+      .post(newTodoInput.current!.value)
+      .then(() => {
+        if (newTodoInput.current) newTodoInput.current!.value = "";
+      })
+      .catch(() => {
+        alert("Something went wrong. Please try again.");
+      })
+      .finally(() => {
+        setIsCreating(false);
+      });
+  }, []);
 
   /**
    * Handles the next page.
@@ -105,8 +132,17 @@ function HomePage() {
           <h1>O que fazer hoje?</h1>
         </div>
         <form>
-          <input type="text" placeholder="Correr, Estudar..." />
-          <button type="submit" aria-label="Adicionar novo item">
+          <input
+            type="text"
+            placeholder="Correr, Estudar..."
+            ref={newTodoInput}
+          />
+          <button
+            type="button"
+            aria-label="Adicionar novo item"
+            onClick={createTodo}
+            disabled={isCreating}
+          >
             +
           </button>
         </form>

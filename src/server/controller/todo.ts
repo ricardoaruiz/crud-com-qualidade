@@ -1,40 +1,75 @@
+import { z as schema } from "zod";
 import { todoRepository } from "@server/repository/todo";
 import { NextApiRequest, NextApiResponse } from "next";
 
-const create = (req: NextApiRequest, res: NextApiResponse) => {
-  req.body;
-  res.status(201).json(req.body);
-};
+const TodoCreateBodySchema = schema.object({
+  content: schema.string(),
+});
+
+const TodoReadParamsSchema = schema.object({
+  page: schema.string().regex(/^\d+$/).optional(),
+  limit: schema.string().regex(/^\d+$/).optional(),
+  search: schema.string().optional(),
+});
 
 /**
- * Reads data from the API based on the provided request parameters.
+ * Creates a new resource.
  *
- * @param {NextApiRequest} req - The request object containing the query parameters.
- * @param {NextApiResponse} res - The response object used to send the data back to the client.
- * @return {void} The function does not return a value directly, but sends the data as a response.
+ * @param {NextApiRequest} req - The request object.
+ * @param {NextApiResponse} res - The response object.
+ * @return {Promise<void>} This function does not return anything.
  */
-const read = (req: NextApiRequest, res: NextApiResponse) => {
-  const { page, limit, search } = req.query;
+async function create(
+  req: NextApiRequest,
+  res: NextApiResponse,
+): Promise<void> {
+  const body = TodoCreateBodySchema.safeParse(req.body);
 
-  const parsedPage = Number(page);
-  if (page && isNaN(parsedPage)) {
-    res.status(400).json({ message: "page must be a number" });
+  if (!body.success) {
+    res.status(400).json({
+      message: "content is required",
+      description: body.error.issues,
+    });
     return;
   }
 
-  const parsedLimit = Number(limit);
-  if (limit && isNaN(parsedLimit)) {
-    res.status(400).json({ message: "limit must be a number" });
+  const createdTodo = await todoRepository.post(body.data.content);
+
+  res.status(201).json(createdTodo);
+}
+
+/**
+ * Reads data from the API.
+ *
+ * @param {NextApiRequest} req - The request object.
+ * @param {NextApiResponse} res - The response object.
+ * @return {Promise<void>} - A promise that resolves to void.
+ */
+const read = async (
+  req: NextApiRequest,
+  res: NextApiResponse,
+): Promise<void> => {
+  const parsedParams = TodoReadParamsSchema.safeParse(req.query);
+
+  if (!parsedParams.success) {
+    const errors = parsedParams.error.issues.map((issue) => ({
+      message: `invalid ${issue.path[0]}`,
+      description: "must be a number",
+    }));
+
+    res.status(400).json(errors);
     return;
   }
 
   const params = {
-    page: parsedPage,
-    limit: parsedLimit,
-    search: search ? String(search) : undefined,
+    page: Number(parsedParams.data.page),
+    limit: Number(parsedParams.data.limit),
+    search: parsedParams.data.search
+      ? String(parsedParams.data.search)
+      : undefined,
   };
 
-  const todos = todoRepository.get(params);
+  const todos = await todoRepository.get(params);
   res.status(200).json(todos);
 };
 

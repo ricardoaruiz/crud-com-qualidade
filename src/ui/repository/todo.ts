@@ -51,10 +51,31 @@ async function get({
 }
 
 /**
+ * Sends a POST request to the server with the specified content and returns a Promise that resolves to a Todo object.
+ *
+ * @param {string} content - The content of the todo.
+ * @return {Promise<Todo>} A Promise that resolves to a Todo object.
+ */
+async function post(content: string): Promise<Todo> {
+  const response = await fetch(TODOS_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      content,
+    }),
+  });
+
+  return parseTodo(await response.json());
+}
+
+/**
  * The todo repository UI
  */
 export const todoRepository = {
   get,
+  post,
 };
 
 /**
@@ -77,25 +98,7 @@ function parseTodos(data: unknown): TodoRespositoryGetOuput {
     return {
       total: Number(data.total),
       pages: Number(data.pages),
-      todos: data.todos.map((todo) => {
-        if (todo === null && typeof todo !== "object") {
-          throw new Error("Invalid todo from API");
-        }
-
-        const { id, content, date, done } = todo as {
-          id: string;
-          content: string;
-          date: string;
-          done: string;
-        };
-
-        return {
-          id,
-          content,
-          date: new Date(date),
-          done: String(done).toLowerCase() === "true",
-        };
-      }),
+      todos: data.todos.map((todo) => parseTodo(todo)),
     };
   }
 
@@ -103,5 +106,31 @@ function parseTodos(data: unknown): TodoRespositoryGetOuput {
     total: 0,
     pages: 1,
     todos: [],
+  };
+}
+
+/**
+ * Parses the given data and returns a Todo object.
+ *
+ * @param {unknown} data - The data to be parsed.
+ * @return {Todo} The parsed Todo object.
+ */
+function parseTodo(data: unknown): Todo {
+  if (data === null && typeof data !== "object") {
+    throw new Error("Invalid todo from API");
+  }
+
+  const { id, content, date, done } = data as {
+    id: string;
+    content: string;
+    date: string;
+    done: string;
+  };
+
+  return {
+    id,
+    content,
+    date: new Date(date),
+    done: String(done).toLowerCase() === "true",
   };
 }
