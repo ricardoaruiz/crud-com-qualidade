@@ -16,7 +16,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
       break;
     }
     case "DELETE": {
-      todoController.delete(req, res);
+      todoController.remove(req, res);
       break;
     }
     default: {

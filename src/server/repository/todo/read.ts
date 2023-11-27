@@ -1,11 +1,5 @@
-import { readTodos, createTodo } from "@db-crud-todo";
-
-interface Todo {
-  id: string;
-  content: string;
-  date: string;
-  done: boolean;
-}
+import { readTodos } from "@db-crud-todo";
+import { Todo } from "@ui/schema/todo";
 
 interface TodoRepositoryGetParams {
   page?: number;
@@ -28,11 +22,11 @@ interface TodosRepositoryGetOutput {
  * @param {string} params.search - The search string to filter todos by their content.
  * @returns {Promise<TodosRepositoryGetOutput>} A promise that resolves to the retrieved todos.
  */
-const get = async ({
+export default async function ({
   page,
   limit,
   search,
-}: TodoRepositoryGetParams): Promise<TodosRepositoryGetOutput> => {
+}: TodoRepositoryGetParams): Promise<TodosRepositoryGetOutput> {
   const TODOS_FROM_DB = readTodos()
     .reverse()
     .filter((todo) => {
@@ -59,19 +53,4 @@ const get = async ({
     total,
     pages,
   };
-};
-
-/**
- * Creates a new post with the given content.
- *
- * @param {string} content - The content of the post.
- * @return {Promise<Todo>} - A Promise that resolves to the created post.
- */
-const post = async (content: string): Promise<Todo> => {
-  return createTodo(content);
-};
-
-export const todoRepository = {
-  get,
-  post,
-};
+}
