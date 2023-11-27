@@ -9,7 +9,11 @@ import { DB_FILE_PATH } from "../constants";
  * @return {Array<Todo>} The list of todos.
  */
 export function readTodos(): Array<Todo> {
-  const content = fs.readFileSync(DB_FILE_PATH, "utf-8");
-  const parsedContent = JSON.parse(content || "{}");
-  return parsedContent.todos || [];
+  try {
+    const content = fs.readFileSync(DB_FILE_PATH, "utf-8");
+    const parsedContent = JSON.parse(content || "{}");
+    return parsedContent.todos || [];
+  } catch (error) {
+    return [];
+  }
 }

@@ -1,4 +1,6 @@
-import { Todo, todoRepository } from "@ui/repository/todo";
+import { todoRepository } from "@ui/repository/todo";
+import { Todo } from "@ui/schema/todo";
+import { z as schema } from "zod";
 
 interface TodoControllerGetParams {
   page: number;
@@ -50,7 +52,13 @@ function filterTodosByContent<Todo>(
  * @return {Promise<Todo>} A Promise that resolves to a Todo.
  */
 function post(content: string): Promise<Todo> {
-  return todoRepository.post(content);
+  const parsedParams = schema.string().min(1).safeParse(content);
+
+  if (!parsedParams.success) {
+    throw new Error("Invalid content");
+  }
+
+  return todoRepository.post(parsedParams.data);
 }
 
 /**

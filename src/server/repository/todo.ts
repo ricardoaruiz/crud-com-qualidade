@@ -33,14 +33,16 @@ const get = async ({
   limit,
   search,
 }: TodoRepositoryGetParams): Promise<TodosRepositoryGetOutput> => {
-  const TODOS_FROM_DB = readTodos().filter((todo) => {
-    if (search) {
-      return todo.content
-        .toLocaleLowerCase()
-        .includes(search.toLocaleLowerCase());
-    }
-    return true;
-  });
+  const TODOS_FROM_DB = readTodos()
+    .reverse()
+    .filter((todo) => {
+      if (search) {
+        return todo.content
+          .toLocaleLowerCase()
+          .includes(search.toLocaleLowerCase());
+      }
+      return true;
+    });
 
   const currentPage = page || 1;
   const currentLimit = limit || 10;

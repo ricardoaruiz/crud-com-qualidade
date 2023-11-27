@@ -13,7 +13,7 @@ type HomeTodo = {
 };
 
 const bg = "/bg.jpeg"; // inside public folder
-const PAGE_LIMIT = 2;
+const PAGE_LIMIT = 5;
 
 /**
  * load todos function params type
@@ -22,6 +22,7 @@ type LoadTodosParams = {
   page: number;
   limit: number;
   search?: string;
+  isAppendMode?: boolean;
 };
 
 const CreateTodoFormSchema = z.object({
@@ -68,13 +69,15 @@ function HomePage() {
    * Loads todos from the API.
    */
   const loadTodos = React.useCallback(
-    ({ page, limit, search }: LoadTodosParams) => {
+    ({ page, limit, search, isAppendMode = false }: LoadTodosParams) => {
       setIsLoading(true);
 
       todoController
         .get({ page, limit, search })
         .then(({ todos, pages }) => {
-          setTodos((currentTodos) => [...currentTodos, ...todos]);
+          setTodos((currentTodos) =>
+            isAppendMode ? [...currentTodos, ...todos] : todos,
+          );
           setPages(pages);
         })
         .catch(() => {
@@ -96,18 +99,18 @@ function HomePage() {
 
       todoController
         .post(content)
-        .then((todo) => {
+        .then(() => {
           setValueCreateTodo("content", "");
-          setTodos((currentTodos) => [todo, ...currentTodos]);
+          loadTodos({ page, limit: PAGE_LIMIT * page });
         })
-        .catch(() => {
-          alert("Something went wrong. Please try again.");
+        .catch((error) => {
+          alert(`Something went wrong. Please try again. - ${error.message}`);
         })
         .finally(() => {
           setIsCreating(false);
         });
     },
-    [setValueCreateTodo],
+    [loadTodos, page, setValueCreateTodo],
   );
 
   /**
@@ -116,7 +119,7 @@ function HomePage() {
   const handleNextPage = React.useCallback(() => {
     const nextPage = page + 1;
     setPage(nextPage);
-    loadTodos({ page: nextPage, limit: PAGE_LIMIT });
+    loadTodos({ page: nextPage, limit: PAGE_LIMIT, isAppendMode: true });
   }, [loadTodos, page]);
 
   /**

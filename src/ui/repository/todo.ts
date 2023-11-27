@@ -1,11 +1,6 @@
-const TODOS_URL = "api/todos";
+import { Todo, TodoSchema } from "@ui/schema/todo";
 
-export interface Todo {
-  id: string;
-  content: string;
-  date: Date;
-  done: boolean;
-}
+const TODOS_URL = "api/todos";
 
 interface TodoRepositoryGetParams {
   page: number;
@@ -67,7 +62,17 @@ async function post(content: string): Promise<Todo> {
     }),
   });
 
-  return parseTodo(await response.json());
+  if (!response.ok) {
+    throw new Error("Failed to create todo");
+  }
+
+  const parsedTodo = TodoSchema.safeParse(await response.json());
+
+  if (!parsedTodo.success) {
+    throw new Error("Failed to create todo");
+  }
+
+  return parseTodo(parsedTodo.data);
 }
 
 /**
@@ -130,7 +135,7 @@ function parseTodo(data: unknown): Todo {
   return {
     id,
     content,
-    date: new Date(date),
+    date,
     done: String(done).toLowerCase() === "true",
   };
 }
