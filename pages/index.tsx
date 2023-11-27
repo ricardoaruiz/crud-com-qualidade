@@ -1,4 +1,8 @@
 import React from "react";
+import { useForm, SubmitHandler } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+
 import { GlobalStyles } from "@ui/theme/GlobalStyles";
 import { todoController } from "@ui/controller/todo";
 import { useDebounce } from "@ui/hooks/useDebounce";
@@ -20,9 +24,14 @@ type LoadTodosParams = {
   search?: string;
 };
 
+const CreateTodoFormSchema = z.object({
+  content: z.string().min(1, { message: "O conteúdo deve ser informado" }),
+});
+
+type CreateTodoFormData = z.infer<typeof CreateTodoFormSchema>;
+
 function HomePage() {
   const firstRender = React.useRef(true);
-  const newTodoInput = React.useRef<HTMLInputElement | null>(null);
 
   const [todos, setTodos] = React.useState<HomeTodo[]>([]);
   const [page, setPage] = React.useState(1);
@@ -45,6 +54,15 @@ function HomePage() {
   );
   const hasMorePages = page + 1 <= pages;
   const noDataFound = homeTodos.length === 0;
+
+  const {
+    register: registerCreateTodo,
+    handleSubmit: handleCreateTodoSubmit,
+    formState: { errors: errorsCreateTodo },
+    setValue: setValueCreateTodo,
+  } = useForm<CreateTodoFormData>({
+    resolver: zodResolver(CreateTodoFormSchema),
+  });
 
   /**
    * Loads todos from the API.
@@ -72,24 +90,25 @@ function HomePage() {
   /**
    * Creates a new todo.
    */
-  const createTodo = React.useCallback(async () => {
-    if (!newTodoInput.current?.value) {
-      return;
-    }
-    setIsCreating(true);
+  const createTodo = React.useCallback(
+    async (content: string) => {
+      setIsCreating(true);
 
-    todoController
-      .post(newTodoInput.current!.value)
-      .then(() => {
-        if (newTodoInput.current) newTodoInput.current!.value = "";
-      })
-      .catch(() => {
-        alert("Something went wrong. Please try again.");
-      })
-      .finally(() => {
-        setIsCreating(false);
-      });
-  }, []);
+      todoController
+        .post(content)
+        .then((todo) => {
+          setValueCreateTodo("content", "");
+          setTodos((currentTodos) => [todo, ...currentTodos]);
+        })
+        .catch(() => {
+          alert("Something went wrong. Please try again.");
+        })
+        .finally(() => {
+          setIsCreating(false);
+        });
+    },
+    [setValueCreateTodo],
+  );
 
   /**
    * Handles the next page.
@@ -109,6 +128,18 @@ function HomePage() {
     },
     [],
   );
+
+  /**
+   * Handles the submit event for creating a new todo.
+   *
+   * @param {CreateTodoFormData} data - The form data containing the todo content.
+   * @return {void} This function does not return anything.
+   */
+  const onSubmitCreateTodo: SubmitHandler<CreateTodoFormData> = (
+    data: CreateTodoFormData,
+  ): void => {
+    createTodo(data.content);
+  };
 
   /**
    * Handles first load.
@@ -131,20 +162,30 @@ function HomePage() {
         <div className="typewriter">
           <h1>O que fazer hoje?</h1>
         </div>
-        <form>
-          <input
-            type="text"
-            placeholder="Correr, Estudar..."
-            ref={newTodoInput}
-          />
-          <button
-            type="button"
-            aria-label="Adicionar novo item"
-            onClick={createTodo}
-            disabled={isCreating}
-          >
-            +
-          </button>
+        <form onSubmit={handleCreateTodoSubmit(onSubmitCreateTodo)}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+            <div style={{ position: "relative" }}>
+              <input
+                type="text"
+                placeholder="Correr, Estudar..."
+                {...registerCreateTodo("content")}
+              />
+              <button
+                type="submit"
+                aria-label="Adicionar novo item"
+                disabled={isCreating}
+              >
+                +
+              </button>
+            </div>
+            <div style={{ height: "20px" }}>
+              {errorsCreateTodo.content && (
+                <p role="alert" style={{ color: "red", fontWeight: "bold" }}>
+                  {errorsCreateTodo.content.message}
+                </p>
+              )}
+            </div>
+          </div>
         </form>
       </header>
 
