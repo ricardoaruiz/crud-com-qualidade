@@ -1,8 +1,8 @@
 import { z as schema } from "zod";
 import { NextApiRequest, NextApiResponse } from "next";
 import { todoRepository } from "@server/repository";
-import { RepositoryNotFound } from "@server/repository/exceptions/RepositoryNotFound";
-import { ControllerBadRequest } from "../exceptions/ControllerBadRequest";
+import { ServerRepositoryNotFound } from "@server/repository/exceptions/ServerRepositoryNotFound";
+import { ServerControllerBadRequest } from "@server/controller/exceptions/ServerControllerBadRequest";
 
 interface ValidateInputsOutput {
   id: string;
@@ -18,7 +18,7 @@ function validateInputs(req: NextApiRequest): ValidateInputsOutput {
   const parsedParams = schema.string().uuid().safeParse(req.query.id);
 
   if (!parsedParams.success) {
-    throw new ControllerBadRequest("Invalid id.");
+    throw new ServerControllerBadRequest("Invalid id.");
   }
 
   return {
@@ -44,11 +44,11 @@ export default async function (
 
     res.status(200).json(updatedTodo);
   } catch (error: unknown) {
-    if (error instanceof ControllerBadRequest) {
+    if (error instanceof ServerControllerBadRequest) {
       res.status(400).json({ error: { message: error.message } });
       return;
     }
-    if (error instanceof RepositoryNotFound) {
+    if (error instanceof ServerRepositoryNotFound) {
       res.status(404).json({ error: { message: error.message } });
       return;
     }

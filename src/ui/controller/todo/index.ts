@@ -1,11 +1,11 @@
-import post from "./create";
+import create from "./create";
 import get from "./read";
 import filterTodosByContent from "./filterByContent";
-import put from "./update";
+import toggleDone from "./toggleDone";
 
 export const todoController = {
-  post,
+  create,
   get,
   filterTodosByContent,
-  put,
+  toggleDone,
 };

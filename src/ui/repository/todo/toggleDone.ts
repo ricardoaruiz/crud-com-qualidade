@@ -1,27 +1,29 @@
+import { ServerControllerException } from "@server/controller/exceptions/ServerControllerException";
 import { TodoSchema } from "@ui/schema/todo";
 import { Todo } from "core/types";
 
 const TODOS_URL = "api/todos";
 
-interface UpdateTodoRepositoryParams {
+interface ToggleDoneRepositoryParams {
   id: string;
 }
 
 /**
- * Sends a PUT request to the server with the specified done and returns a Promise that resolves to a Todo object.
+ * Sends a PUT request to the server with the specified TODO id and returns a Promise that resolves to a Todo object.
  *
- * @param {string} content - The content of the todo.
+ * @param {string} id - The TODO id.
  * @return {Promise<Todo>} A Promise that resolves to a Todo object.
  */
 export default async function ({
   id,
-}: UpdateTodoRepositoryParams): Promise<Todo> {
+}: ToggleDoneRepositoryParams): Promise<Todo> {
   const response = await fetch(`${TODOS_URL}/${id}/toggle-done`, {
     method: "PUT",
   });
 
   if (!response.ok) {
-    throw new Error("Failed to update todo");
+    const errorObj: ServerControllerException = await response.json();
+    throw new Error(errorObj.error.message);
   }
 
   const updatedTodo = await response.json();

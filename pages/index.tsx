@@ -6,6 +6,7 @@ import { z } from "zod";
 import { GlobalStyles } from "@ui/theme/GlobalStyles";
 import { todoController } from "@ui/controller";
 import { useDebounce } from "@ui/hooks/useDebounce";
+import { UIControllerInvalidInput } from "@ui/controller/exceptions/UIControllerInvalidInput";
 
 type HomeTodo = {
   id: string;
@@ -99,13 +100,22 @@ function HomePage() {
       setIsCreating(true);
 
       todoController
-        .post(content)
+        .create(content)
         .then(() => {
           setValueCreateTodo("content", "");
           loadTodos({ page, limit: PAGE_LIMIT * page });
         })
         .catch((error) => {
-          alert(`Something went wrong. Please try again. - ${error.message}`);
+          if (error instanceof UIControllerInvalidInput) {
+            // TODO: improve error
+            alert(error.toString());
+            return;
+          }
+          if (error instanceof Error) {
+            // TODO: improve error
+            alert(error.message);
+            return;
+          }
         })
         .finally(() => {
           setIsCreating(false);
@@ -115,11 +125,11 @@ function HomePage() {
   );
 
   /**
-   * Updates a todo.
+   * Toggles the done state of a todo.
    */
-  const updateTodo = React.useCallback((id: string) => {
+  const toggleDone = React.useCallback((id: string) => {
     todoController
-      .put({ id })
+      .toggleDone({ id })
       .then((data) => {
         setTodos((currentTodos) => {
           return currentTodos.map((todo) =>
@@ -128,7 +138,16 @@ function HomePage() {
         });
       })
       .catch((error) => {
-        alert(`Something went wrong. Please try again. - ${error.message}`);
+        if (error instanceof UIControllerInvalidInput) {
+          // TODO: improve error
+          alert(error.toString());
+          return;
+        }
+        if (error instanceof Error) {
+          // TODO: improve error
+          alert(error.message);
+          return;
+        }
       });
   }, []);
 
@@ -257,7 +276,7 @@ function HomePage() {
                     <input
                       type="checkbox"
                       checked={done}
-                      onChange={() => updateTodo(id)}
+                      onChange={() => toggleDone(id)}
                     />
                   </td>
                   <td style={{ textDecoration: done ? "line-through" : "" }}>

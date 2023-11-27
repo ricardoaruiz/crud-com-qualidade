@@ -1,3 +1,4 @@
+import { ServerControllerException } from "@server/controller/exceptions/ServerControllerException";
 import { TodoSchema } from "@ui/schema/todo";
 import { Todo } from "core/types";
 
@@ -21,7 +22,8 @@ export default async function (content: string): Promise<Todo> {
   });
 
   if (!response.ok) {
-    throw new Error("Failed to create todo");
+    const errorObj: ServerControllerException = await response.json();
+    throw new Error(errorObj.error.message);
   }
 
   const parsedTodo = TodoSchema.safeParse(await response.json());
