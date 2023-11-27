@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
 import { GlobalStyles } from "@ui/theme/GlobalStyles";
-import { todoController } from "@ui/controller/todo";
+import { todoController } from "@ui/controller";
 import { useDebounce } from "@ui/hooks/useDebounce";
 
 type HomeTodo = {
