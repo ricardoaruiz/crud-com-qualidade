@@ -43,9 +43,9 @@ export default async function (
   try {
     const { id, done } = validateInputs(req);
 
-    await todoRepository.put({ id, done });
+    const updatedTodo = await todoRepository.put({ id, done });
 
-    res.status(200).json({ id, done });
+    res.status(200).json(updatedTodo);
   } catch (error: unknown) {
     res.status(400).json({ message: (error as Error).message });
   }

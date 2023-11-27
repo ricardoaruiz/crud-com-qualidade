@@ -10,6 +10,7 @@ import { useDebounce } from "@ui/hooks/useDebounce";
 type HomeTodo = {
   id: string;
   content: string;
+  done: boolean;
 };
 
 const bg = "/bg.jpeg"; // inside public folder
@@ -112,6 +113,24 @@ function HomePage() {
     },
     [loadTodos, page, setValueCreateTodo],
   );
+
+  /**
+   * Updates a todo.
+   */
+  const updateTodo = React.useCallback((id: string, done: boolean) => {
+    todoController
+      .put({ id, done })
+      .then(() => {
+        setTodos((currentTodos) => {
+          return currentTodos.map((todo) =>
+            todo.id === id ? { ...todo, done } : todo,
+          );
+        });
+      })
+      .catch((error) => {
+        alert(`Something went wrong. Please try again. - ${error.message}`);
+      });
+  }, []);
 
   /**
    * Handles the next page.
@@ -232,13 +251,23 @@ function HomePage() {
 
             {!isLoading &&
               !!homeTodos.length &&
-              homeTodos.map(({ id, content }) => (
+              homeTodos.map(({ id, content, done }) => (
                 <tr key={id}>
                   <td>
-                    <input type="checkbox" />
+                    <input
+                      type="checkbox"
+                      checked={done}
+                      onChange={(event) =>
+                        updateTodo(id, event.currentTarget.checked)
+                      }
+                    />
                   </td>
-                  <td>{id.substring(0, 4)}</td>
-                  <td>{content}</td>
+                  <td style={{ textDecoration: done ? "line-through" : "" }}>
+                    {id.substring(0, 4)}
+                  </td>
+                  <td style={{ textDecoration: done ? "line-through" : "" }}>
+                    {content}
+                  </td>
                   <td align="right">
                     <button data-type="delete">Apagar</button>
                   </td>
