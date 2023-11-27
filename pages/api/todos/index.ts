@@ -11,16 +11,8 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
       todoController.read(req, res);
       break;
     }
-    case "PUT": {
-      todoController.update(req, res);
-      break;
-    }
-    case "DELETE": {
-      todoController.remove(req, res);
-      break;
-    }
     default: {
-      res.status(405).json({ message: "Method not allowed" });
+      res.status(405).json({ message: "Method not allowed 1" });
       break;
     }
   }

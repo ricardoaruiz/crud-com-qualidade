@@ -51,6 +51,6 @@ export function updateTodoContentById(id: UUID, content: string): Todo {
  * @param {UUID} id - The ID of the todo to mark as done.
  * @return {Todo} The updated todo.
  */
-export function markTodoAsDone(id: UUID): Todo {
-  return updateTodo(id, { done: true });
+export function markTodoAsDone(id: UUID, done: boolean): Todo {
+  return updateTodo(id, { done });
 }

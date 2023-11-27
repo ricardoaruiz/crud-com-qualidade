@@ -25,7 +25,7 @@ setTimeout(() => {
 
 // Marca uma todo como concluída após um três segundos da criação
 setTimeout(() => {
-  markTodoAsDone(todo1.id);
+  markTodoAsDone(todo1.id, true);
 }, 3000);
 
 // Deleta uma todo após quatro segundos da criação
