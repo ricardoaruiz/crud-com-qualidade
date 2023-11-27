@@ -14,7 +14,7 @@ function validateInputs(req: NextApiRequest): string {
   const body = TodoCreateBodySchema.safeParse(req.body);
 
   if (!body.success) {
-    throw new ServerControllerBadRequest("Invalid id.");
+    throw new ServerControllerBadRequest("Invalid content.");
   }
 
   return body.data.content;

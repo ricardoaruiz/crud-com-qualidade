@@ -13,10 +13,7 @@ export default async function (content: string): Promise<Todo> {
   const parsedParams = schema.string().min(1).safeParse(content);
 
   if (!parsedParams.success) {
-    throw new UIControllerInvalidInput(
-      "Invalid input",
-      parsedParams.error.issues[0].path[0].toString(),
-    );
+    throw new UIControllerInvalidInput("Invalid input", "content");
   }
 
   return todoRepository.post(parsedParams.data);
