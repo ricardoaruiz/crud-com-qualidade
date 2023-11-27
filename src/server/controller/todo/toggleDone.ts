@@ -4,7 +4,6 @@ import { todoRepository } from "@server/repository";
 
 interface ValidateInputsOutput {
   id: string;
-  done: boolean;
 }
 
 /**
@@ -17,36 +16,46 @@ function validateInputs(req: NextApiRequest): ValidateInputsOutput {
   const parsedParams = schema.string().uuid().safeParse(req.query.id);
 
   if (!parsedParams.success) {
-    throw new Error("Invalid id.");
-  }
-
-  const parseBody = schema
-    .object({
-      done: schema.boolean(),
-    })
-    .safeParse(req.body);
-
-  if (!parseBody.success) {
-    throw new Error("Invalid done value. Must be true or false");
+    throw new Error("Invalid id.", {
+      cause: "BAD_REQUEST",
+    });
   }
 
   return {
     id: parsedParams.data,
-    done: parseBody.data.done,
   };
 }
 
+/**
+ * Chande todo done information contreoller
+ * @param req request
+ * @param res response
+ */
 export default async function (
   req: NextApiRequest,
   res: NextApiResponse,
 ): Promise<void> {
   try {
-    const { id, done } = validateInputs(req);
+    const { id } = validateInputs(req);
 
-    const updatedTodo = await todoRepository.put({ id, done });
+    const updatedTodo = await todoRepository.toggleDone({
+      id,
+    });
 
     res.status(200).json(updatedTodo);
   } catch (error: unknown) {
-    res.status(400).json({ message: (error as Error).message });
+    const parsedError = error as Error;
+
+    switch (parsedError.cause) {
+      case "NOT_FOUND":
+        res.status(404).json({ message: parsedError.message });
+        break;
+      case "BAD_REQUEST":
+        res.status(400).json({ message: parsedError.message });
+        break;
+      default:
+        res.status(500).json({ message: parsedError.message });
+        break;
+    }
   }
 }

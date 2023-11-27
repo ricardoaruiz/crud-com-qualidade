@@ -117,13 +117,13 @@ function HomePage() {
   /**
    * Updates a todo.
    */
-  const updateTodo = React.useCallback((id: string, done: boolean) => {
+  const updateTodo = React.useCallback((id: string) => {
     todoController
-      .put({ id, done })
-      .then(() => {
+      .put({ id })
+      .then((data) => {
         setTodos((currentTodos) => {
           return currentTodos.map((todo) =>
-            todo.id === id ? { ...todo, done } : todo,
+            todo.id === id ? { ...todo, done: data.done } : todo,
           );
         });
       })
@@ -257,9 +257,7 @@ function HomePage() {
                     <input
                       type="checkbox"
                       checked={done}
-                      onChange={(event) =>
-                        updateTodo(id, event.currentTarget.checked)
-                      }
+                      onChange={() => updateTodo(id)}
                     />
                   </td>
                   <td style={{ textDecoration: done ? "line-through" : "" }}>

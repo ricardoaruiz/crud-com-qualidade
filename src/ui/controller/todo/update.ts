@@ -4,7 +4,6 @@ import { z as schema } from "zod";
 
 const UpdateTodoControllerParamsSchema = schema.object({
   id: schema.string().uuid(),
-  done: schema.boolean(),
 });
 
 type UpdateTodoParams = schema.infer<typeof UpdateTodoControllerParamsSchema>;
@@ -29,7 +28,7 @@ export default async function (
     throw new Error(JSON.stringify({ errors }));
   }
 
-  const { id, done } = parsedParams.data;
+  const { id } = parsedParams.data;
 
-  return todoRepository.put({ id, done });
+  return todoRepository.put({ id });
 }

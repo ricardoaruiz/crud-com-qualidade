@@ -5,7 +5,6 @@ const TODOS_URL = "api/todos";
 
 interface UpdateTodoRepositoryParams {
   id: string;
-  done: boolean;
 }
 
 /**
@@ -16,16 +15,9 @@ interface UpdateTodoRepositoryParams {
  */
 export default async function ({
   id,
-  done,
 }: UpdateTodoRepositoryParams): Promise<Todo> {
-  const response = await fetch(`${TODOS_URL}/${id}`, {
+  const response = await fetch(`${TODOS_URL}/${id}/toggle-done`, {
     method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      done,
-    }),
   });
 
   if (!response.ok) {

@@ -1,9 +1,11 @@
 import post from "./create";
 import get from "./read";
-import put from "./update";
+import toggleDone from "./toggleDone";
+import findOne from "./findOne";
 
 export const todoRepository = {
   post,
   get,
-  put,
+  toggleDone,
+  findOne,
 };
