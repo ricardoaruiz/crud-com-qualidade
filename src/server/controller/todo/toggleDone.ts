@@ -1,6 +1,8 @@
 import { z as schema } from "zod";
 import { NextApiRequest, NextApiResponse } from "next";
 import { todoRepository } from "@server/repository";
+import { RepositoryNotFound } from "@server/repository/exceptions/RepositoryNotFound";
+import { ControllerBadRequest } from "../exceptions/ControllerBadRequest";
 
 interface ValidateInputsOutput {
   id: string;
@@ -16,9 +18,7 @@ function validateInputs(req: NextApiRequest): ValidateInputsOutput {
   const parsedParams = schema.string().uuid().safeParse(req.query.id);
 
   if (!parsedParams.success) {
-    throw new Error("Invalid id.", {
-      cause: "BAD_REQUEST",
-    });
+    throw new ControllerBadRequest("Invalid id.");
   }
 
   return {
@@ -44,18 +44,16 @@ export default async function (
 
     res.status(200).json(updatedTodo);
   } catch (error: unknown) {
-    const parsedError = error as Error;
-
-    switch (parsedError.cause) {
-      case "NOT_FOUND":
-        res.status(404).json({ message: parsedError.message });
-        break;
-      case "BAD_REQUEST":
-        res.status(400).json({ message: parsedError.message });
-        break;
-      default:
-        res.status(500).json({ message: parsedError.message });
-        break;
+    if (error instanceof ControllerBadRequest) {
+      res.status(400).json({ error: { message: error.message } });
+      return;
+    }
+    if (error instanceof RepositoryNotFound) {
+      res.status(404).json({ error: { message: error.message } });
+      return;
+    }
+    if (error instanceof Error) {
+      res.status(500).json({ error: { message: error.message } });
     }
   }
 }

@@ -8,7 +8,5 @@ interface TodoRepositoryFindOneParams {
 export default async function ({
   id,
 }: TodoRepositoryFindOneParams): Promise<Todo | undefined> {
-  const foundTodo = readTodos().find((todo) => todo.id === id);
-
-  return foundTodo;
+  return readTodos().find((todo) => todo.id === id);
 }

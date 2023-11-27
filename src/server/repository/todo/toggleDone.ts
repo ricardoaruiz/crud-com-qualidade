@@ -1,6 +1,7 @@
 import { markTodoAsDone } from "@db-crud-todo";
 import { Todo } from "core/types";
 import { todoRepository } from ".";
+import { RepositoryNotFound } from "../exceptions/RepositoryNotFound";
 
 type UpdateTodoInput = {
   id: string;
@@ -15,9 +16,7 @@ export default async function ({ id }: UpdateTodoInput): Promise<Todo> {
   const foundTodo = await todoRepository.findOne({ id });
 
   if (!foundTodo) {
-    throw new Error("Todo not found.", {
-      cause: "NOT_FOUND",
-    });
+    throw new RepositoryNotFound("Todo not found.");
   }
 
   const done = !foundTodo.done;
