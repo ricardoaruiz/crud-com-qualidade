@@ -2,7 +2,7 @@ import { z as schema } from "zod";
 import { NextApiRequest, NextApiResponse } from "next";
 import { todoRepository } from "@server/repository/todo";
 import { ServerControllerBadRequest } from "../exceptions/ServerControllerBadRequest";
-import { ServerControllerException } from "../exceptions/ServerControllerException";
+import { ServerControllerGeneralException } from "../exceptions/ServerControllerGeneralException";
 
 const TodoReadParamsSchema = schema.object({
   page: schema.string().regex(/^\d+$/).optional(),
@@ -60,15 +60,15 @@ export default async function (
     res.status(200).json(todos);
   } catch (error: unknown) {
     if (error instanceof ServerControllerBadRequest) {
-      res.status(400).json({
-        error: { message: error.message },
-      } as ServerControllerException);
+      res
+        .status(400)
+        .json(new ServerControllerGeneralException(error.message).toObject());
       return;
     }
     if (error instanceof Error) {
-      res.status(500).json({
-        error: { message: error.message },
-      } as ServerControllerException);
+      res
+        .status(500)
+        .json(new ServerControllerGeneralException(error.message).toObject());
     }
   }
 }

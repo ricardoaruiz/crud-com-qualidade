@@ -3,7 +3,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { todoRepository } from "@server/repository";
 import { ServerRepositoryNotFound } from "@server/repository/exceptions/ServerRepositoryNotFound";
 import { ServerControllerBadRequest } from "@server/controller/exceptions/ServerControllerBadRequest";
-import { ServerControllerException } from "../exceptions/ServerControllerException";
+import { ServerControllerGeneralException } from "../exceptions/ServerControllerGeneralException";
 
 interface ValidateInputsOutput {
   id: string;
@@ -46,21 +46,21 @@ export default async function (
     res.status(200).json(updatedTodo);
   } catch (error: unknown) {
     if (error instanceof ServerControllerBadRequest) {
-      res.status(400).json({
-        error: { message: error.message },
-      } as ServerControllerException);
+      res
+        .status(400)
+        .json(new ServerControllerGeneralException(error.message).toObject());
       return;
     }
     if (error instanceof ServerRepositoryNotFound) {
-      res.status(404).json({
-        error: { message: error.message },
-      } as ServerControllerException);
+      res
+        .status(404)
+        .json(new ServerControllerGeneralException(error.message).toObject());
       return;
     }
     if (error instanceof Error) {
-      res.status(500).json({
-        error: { message: error.message },
-      } as ServerControllerException);
+      res
+        .status(500)
+        .json(new ServerControllerGeneralException(error.message).toObject());
     }
   }
 }
