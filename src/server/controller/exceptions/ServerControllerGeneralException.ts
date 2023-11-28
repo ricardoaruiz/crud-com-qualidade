@@ -9,7 +9,7 @@ export class ServerControllerGeneralException extends Error {
    */
   constructor(message: string) {
     super(message);
-    this.name = "ControllerGeneralException";
+    this.name = "ServerControllerGeneralException";
   }
 
   /**

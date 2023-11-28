@@ -60,9 +60,7 @@ export default async function (
     res.status(200).json(todos);
   } catch (error: unknown) {
     if (error instanceof ServerControllerBadRequest) {
-      res
-        .status(400)
-        .json(new ServerControllerGeneralException(error.message).toObject());
+      res.status(400).json(error.toObject());
       return;
     }
     if (error instanceof Error) {

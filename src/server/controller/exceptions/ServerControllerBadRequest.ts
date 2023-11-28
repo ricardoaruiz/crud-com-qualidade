@@ -1,6 +1,8 @@
-export class ServerControllerBadRequest extends Error {
+import { ServerControllerGeneralException } from "./ServerControllerGeneralException";
+
+export class ServerControllerBadRequest extends ServerControllerGeneralException {
   constructor(message: string) {
     super(message);
-    this.name = "ControllerBadRequest";
+    this.name = "ServerControllerBadRequest";
   }
 }
