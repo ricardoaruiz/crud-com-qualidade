@@ -6,7 +6,7 @@ import { z } from "zod";
 import { GlobalStyles } from "@ui/theme/GlobalStyles";
 import { todoController } from "@ui/controller";
 import { useDebounce } from "@ui/hooks/useDebounce";
-import { UIControllerInvalidInput } from "@ui/controller/exceptions/UIControllerInvalidInput";
+import { UIControllerException } from "@ui/controller/exceptions/UIControllerException";
 
 type HomeTodo = {
   id: string;
@@ -106,16 +106,9 @@ function HomePage() {
           loadTodos({ page, limit: PAGE_LIMIT * page });
         })
         .catch((error) => {
-          if (error instanceof UIControllerInvalidInput) {
-            // TODO: improve error
-            alert(error.toString());
-            return;
-          }
-          if (error instanceof Error) {
-            // TODO: improve error
-            alert(error.message);
-            return;
-          }
+          const errorController = error as UIControllerException;
+          // TODO: improve error
+          alert(errorController.toString());
         })
         .finally(() => {
           setIsCreating(false);
@@ -138,16 +131,9 @@ function HomePage() {
         });
       })
       .catch((error) => {
-        if (error instanceof UIControllerInvalidInput) {
-          // TODO: improve error
-          alert(error.toString());
-          return;
-        }
-        if (error instanceof Error) {
-          // TODO: improve error
-          alert(error.message);
-          return;
-        }
+        const errorController = error as UIControllerException;
+        // TODO: improve error
+        alert(errorController.toString());
       });
   }, []);
 
@@ -279,11 +265,9 @@ function HomePage() {
                       onChange={() => toggleDone(id)}
                     />
                   </td>
+                  <td>{id.substring(0, 4)}</td>
                   <td style={{ textDecoration: done ? "line-through" : "" }}>
-                    {id.substring(0, 4)}
-                  </td>
-                  <td style={{ textDecoration: done ? "line-through" : "" }}>
-                    {content}
+                    {done ? <s>{content}</s> : content}
                   </td>
                   <td align="right">
                     <button data-type="delete">Apagar</button>

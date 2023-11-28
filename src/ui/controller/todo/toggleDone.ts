@@ -2,6 +2,7 @@ import { todoRepository } from "@ui/repository";
 import { Todo } from "@ui/schema/todo";
 import { UIControllerInvalidInput } from "@ui/controller/exceptions/UIControllerInvalidInput";
 import { z as schema } from "zod";
+import { UIControllerException } from "../exceptions/UIControllerException";
 
 const ToggleDoneControllerParamsSchema = schema.object({
   id: schema.string().uuid(),
@@ -21,13 +22,13 @@ export default async function (
   const parsedParams = ToggleDoneControllerParamsSchema.safeParse(params);
 
   if (!parsedParams.success) {
-    throw new UIControllerInvalidInput(
-      "Invalid input",
-      parsedParams.error.issues[0].path[0].toString(),
-    );
+    throw new UIControllerInvalidInput("Invalid input ui", "id");
   }
 
-  const { id } = parsedParams.data;
-
-  return todoRepository.toggleDone({ id });
+  try {
+    return await todoRepository.toggleDone({ id: parsedParams.data.id });
+  } catch (error) {
+    const errorObj = error as Error;
+    throw new UIControllerException(errorObj.message);
+  }
 }

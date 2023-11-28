@@ -2,9 +2,10 @@ import { z as schema } from "zod";
 import { NextApiRequest, NextApiResponse } from "next";
 import { todoRepository } from "@server/repository/todo";
 import { ServerControllerBadRequest } from "../exceptions/ServerControllerBadRequest";
+import { ServerControllerException } from "../exceptions/ServerControllerException";
 
 const TodoCreateBodySchema = schema.object({
-  content: schema.string(),
+  content: schema.string().min(10),
 });
 
 /**
@@ -14,7 +15,9 @@ function validateInputs(req: NextApiRequest): string {
   const body = TodoCreateBodySchema.safeParse(req.body);
 
   if (!body.success) {
-    throw new ServerControllerBadRequest("Invalid content.");
+    throw new ServerControllerBadRequest(
+      "Invalid content. Content must be at least 10 characters",
+    );
   }
 
   return body.data.content;
@@ -38,11 +41,15 @@ export default async function (
     res.status(201).json(createdTodo);
   } catch (error) {
     if (error instanceof ServerControllerBadRequest) {
-      res.status(400).json({ error: { message: error.message } });
+      res.status(400).json({
+        error: { message: error.message },
+      } as ServerControllerException);
       return;
     }
     if (error instanceof Error) {
-      res.status(500).json({ error: { message: error.message } });
+      res.status(500).json({
+        error: { message: error.message },
+      } as ServerControllerException);
     }
   }
 }

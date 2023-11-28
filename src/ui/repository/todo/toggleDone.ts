@@ -31,7 +31,7 @@ export default async function ({
   const parsedTodo = TodoSchema.safeParse(updatedTodo);
 
   if (!parsedTodo.success) {
-    throw new Error("Failed to update todo");
+    throw new Error("Returned updated todo is not valid");
   }
 
   return parsedTodo.data;
