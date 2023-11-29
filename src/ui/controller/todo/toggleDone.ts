@@ -22,7 +22,7 @@ export default async function (
   const parsedParams = ToggleDoneControllerParamsSchema.safeParse(params);
 
   if (!parsedParams.success) {
-    throw new UIControllerInvalidInput("Invalid input ui", "id");
+    throw new UIControllerInvalidInput("Invalid input", "id");
   }
 
   try {

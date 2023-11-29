@@ -41,6 +41,9 @@ function HomePage() {
   const [pages, setPages] = React.useState(1);
   const [isLoading, setIsLoading] = React.useState(true);
   const [isCreating, setIsCreating] = React.useState(false);
+  const [isUpdating, setIsUpdating] = React.useState(false);
+  const [isDeleting, setIsDeleting] = React.useState(false);
+  const isInProcesses = isLoading || isCreating || isUpdating || isDeleting;
 
   /**
    * Search state
@@ -121,6 +124,8 @@ function HomePage() {
    * Toggles the done state of a todo.
    */
   const toggleDone = React.useCallback((id: string) => {
+    setIsUpdating(true);
+
     todoController
       .toggleDone({ id })
       .then((data) => {
@@ -134,6 +139,32 @@ function HomePage() {
         const errorController = error as UIControllerException;
         // TODO: improve error
         alert(errorController.toString());
+      })
+      .finally(() => {
+        setIsUpdating(false);
+      });
+  }, []);
+
+  /**
+   * Deletes a todo.
+   */
+  const deleteTodo = React.useCallback((id: string) => {
+    setIsDeleting(true);
+
+    todoController
+      .remove({ id })
+      .then(() => {
+        setTodos((currentTodos) =>
+          currentTodos.filter((todo) => todo.id !== id),
+        );
+      })
+      .catch((error) => {
+        const errorController = error as UIControllerException;
+        // TODO: improve error
+        alert(errorController.toString());
+      })
+      .finally(() => {
+        setIsDeleting(false);
       });
   }, []);
 
@@ -200,7 +231,7 @@ function HomePage() {
               <button
                 type="submit"
                 aria-label="Adicionar novo item"
-                disabled={isCreating}
+                disabled={isInProcesses}
               >
                 +
               </button>
@@ -270,7 +301,13 @@ function HomePage() {
                     {done ? <s>{content}</s> : content}
                   </td>
                   <td align="right">
-                    <button data-type="delete">Apagar</button>
+                    <button
+                      data-type="delete"
+                      onClick={() => deleteTodo(id)}
+                      disabled={isInProcesses}
+                    >
+                      Apagar
+                    </button>
                   </td>
                 </tr>
               ))}
