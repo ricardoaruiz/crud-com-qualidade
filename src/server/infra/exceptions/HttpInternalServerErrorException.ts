@@ -1,16 +1,8 @@
-import { ServerErrorData } from "./ServerErrorData";
+import { HttpBaseException } from "./HttpBaseException";
 
-export class HttpInternalServerErrorException extends Error {
-  status: number;
-  constructor(message: string, status?: number) {
-    super(message);
-    this.status = status || 500;
+export class HttpInternalServerErrorException extends HttpBaseException {
+  constructor(message: string) {
+    super(message, 500);
     this.name = "HttpInternalServerErrorException";
-  }
-
-  toObject(): ServerErrorData {
-    return {
-      error: { message: this.message },
-    };
   }
 }

@@ -2,8 +2,8 @@ import { z as schema } from "zod";
 import { NextApiRequest, NextApiResponse } from "next";
 import { todoRepository } from "@server/repository";
 import { HttpBadRequestException } from "@server/infra/exceptions/HttpBadRequestException";
-import { HttpNotFoundException } from "@server/infra/exceptions/HttpNotFoundException";
 import { HttpInternalServerErrorException } from "@server/infra/exceptions/HttpInternalServerErrorException";
+import { HttpBaseException } from "@server/infra/exceptions/HttpBaseException";
 
 interface ValidateInputsOutput {
   id: string;
@@ -45,10 +45,7 @@ export default async function (
 
     res.status(200).json(updatedTodo);
   } catch (error: unknown) {
-    if (error instanceof HttpBadRequestException) {
-      return res.status(error.status).json(error.toObject());
-    }
-    if (error instanceof HttpNotFoundException) {
+    if (error instanceof HttpBaseException) {
       return res.status(error.status).json(error.toObject());
     }
     if (error instanceof Error) {

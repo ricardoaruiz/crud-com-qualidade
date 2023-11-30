@@ -1,8 +1,8 @@
-import { HttpInternalServerErrorException } from "./HttpInternalServerErrorException";
+import { HttpBaseException } from "./HttpBaseException";
 
-export class HttpBadRequestException extends HttpInternalServerErrorException {
+export class HttpBadRequestException extends HttpBaseException {
   constructor(message: string) {
-    super(message, 404);
+    super(message, 400);
     this.name = "HttpBadRequestException";
   }
 }

@@ -2,8 +2,8 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { z as schema } from "zod";
 import { todoRepository } from "@server/repository";
 import { HttpBadRequestException } from "@server/infra/exceptions/HttpBadRequestException";
-import { HttpNotFoundException } from "@server/infra/exceptions/HttpNotFoundException";
 import { HttpInternalServerErrorException } from "@server/infra/exceptions/HttpInternalServerErrorException";
+import { HttpBaseException } from "@server/infra/exceptions/HttpBaseException";
 
 const DeleteTodoParamsSchema = schema.object({
   id: schema.string().uuid(),
@@ -47,10 +47,7 @@ export default async function (
 
     res.status(200).json({ removedId: id });
   } catch (error: unknown) {
-    if (error instanceof HttpBadRequestException) {
-      return res.status(error.status).json(error.toObject());
-    }
-    if (error instanceof HttpNotFoundException) {
+    if (error instanceof HttpBaseException) {
       return res.status(error.status).json(error.toObject());
     }
     if (error instanceof Error) {

@@ -3,6 +3,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { todoRepository } from "@server/repository/todo";
 import { HttpBadRequestException } from "@server/infra/exceptions/HttpBadRequestException";
 import { HttpInternalServerErrorException } from "@server/infra/exceptions/HttpInternalServerErrorException";
+import { HttpBaseException } from "@server/infra/exceptions/HttpBaseException";
 
 const TodoReadParamsSchema = schema.object({
   page: schema.string().regex(/^\d+$/).optional(),
@@ -59,7 +60,7 @@ export default async function (
     const todos = await todoRepository.get(params);
     res.status(200).json(todos);
   } catch (error: unknown) {
-    if (error instanceof HttpBadRequestException) {
+    if (error instanceof HttpBaseException) {
       return res.status(error.status).json(error.toObject());
     }
     if (error instanceof Error) {

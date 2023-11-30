@@ -3,6 +3,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { todoRepository } from "@server/repository/todo";
 import { HttpBadRequestException } from "@server/infra/exceptions/HttpBadRequestException";
 import { HttpInternalServerErrorException } from "@server/infra/exceptions/HttpInternalServerErrorException";
+import { HttpBaseException } from "@server/infra/exceptions/HttpBaseException";
 
 const TodoCreateBodySchema = schema.object({
   content: schema.string().min(10),
@@ -40,7 +41,7 @@ export default async function (
     const createdTodo = await todoRepository.post(content);
     res.status(201).json(createdTodo);
   } catch (error) {
-    if (error instanceof HttpBadRequestException) {
+    if (error instanceof HttpBaseException) {
       return res.status(error.status).json(error.toObject());
     }
     if (error instanceof Error) {
