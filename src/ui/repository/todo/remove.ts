@@ -1,4 +1,4 @@
-import { ServerControllerException } from "@server/controller/exceptions/ServerControllerException";
+import { ServerErrorData } from "@server/infra/exceptions/ServerErrorData";
 
 const TODOS_URL = "api/todos";
 
@@ -20,7 +20,7 @@ export default async function remove({
   });
 
   if (!response.ok) {
-    const errorObj: ServerControllerException = await response.json();
+    const errorObj: ServerErrorData = await response.json();
     throw new Error(errorObj.error.message);
   }
 

@@ -1,8 +1,8 @@
 import { z as schema } from "zod";
 import { NextApiRequest, NextApiResponse } from "next";
 import { todoRepository } from "@server/repository/todo";
-import { ServerControllerBadRequest } from "../exceptions/ServerControllerBadRequest";
-import { ServerControllerGeneralException } from "../exceptions/ServerControllerGeneralException";
+import { HttpBadRequestException } from "@server/infra/exceptions/HttpBadRequestException";
+import { HttpInternalServerErrorException } from "@server/infra/exceptions/HttpInternalServerErrorException";
 
 const TodoCreateBodySchema = schema.object({
   content: schema.string().min(10),
@@ -15,7 +15,7 @@ function validateInputs(req: NextApiRequest): string {
   const body = TodoCreateBodySchema.safeParse(req.body);
 
   if (!body.success) {
-    throw new ServerControllerBadRequest(
+    throw new HttpBadRequestException(
       "Invalid content. Content must be at least 10 characters",
     );
   }
@@ -40,14 +40,12 @@ export default async function (
     const createdTodo = await todoRepository.post(content);
     res.status(201).json(createdTodo);
   } catch (error) {
-    if (error instanceof ServerControllerBadRequest) {
-      res.status(400).json(error.toObject());
-      return;
+    if (error instanceof HttpBadRequestException) {
+      return res.status(error.status).json(error.toObject());
     }
     if (error instanceof Error) {
-      res
-        .status(500)
-        .json(new ServerControllerGeneralException(error.message).toObject());
+      const genericError = new HttpInternalServerErrorException(error.message);
+      return res.status(genericError.status).json(genericError.toObject());
     }
   }
 }

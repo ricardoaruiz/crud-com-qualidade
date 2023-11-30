@@ -1,6 +1,6 @@
 import { deleteTodo } from "@db-crud-todo";
 import { todoRepository } from ".";
-import { ServerRepositoryNotFound } from "../exceptions/ServerRepositoryNotFound";
+import { HttpNotFoundException } from "@server/infra/exceptions/HttpNotFoundException";
 
 interface DelteTodoInput {
   id: string;
@@ -17,7 +17,7 @@ export default async function ({ id }: DelteTodoInput): Promise<void> {
   const todoToDelete = await todoRepository.findOne({ id });
 
   if (!todoToDelete) {
-    throw new ServerRepositoryNotFound("Todo not found");
+    throw new HttpNotFoundException("Todo not found");
   }
 
   deleteTodo(id);

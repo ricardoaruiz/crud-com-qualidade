@@ -1,4 +1,4 @@
-import { ServerControllerException } from "@server/controller/exceptions/ServerControllerException";
+import { ServerErrorData } from "@server/infra/exceptions/ServerErrorData";
 import { TodoSchema } from "@ui/schema/todo";
 import { Todo } from "core/types";
 
@@ -22,7 +22,7 @@ export default async function (content: string): Promise<Todo> {
   });
 
   if (!response.ok) {
-    const errorObj: ServerControllerException = await response.json();
+    const errorObj: ServerErrorData = await response.json();
     throw new Error(errorObj.error.message);
   }
 

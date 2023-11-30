@@ -1,8 +1,8 @@
 import { z as schema } from "zod";
 import { NextApiRequest, NextApiResponse } from "next";
 import { todoRepository } from "@server/repository/todo";
-import { ServerControllerBadRequest } from "../exceptions/ServerControllerBadRequest";
-import { ServerControllerGeneralException } from "../exceptions/ServerControllerGeneralException";
+import { HttpBadRequestException } from "@server/infra/exceptions/HttpBadRequestException";
+import { HttpInternalServerErrorException } from "@server/infra/exceptions/HttpInternalServerErrorException";
 
 const TodoReadParamsSchema = schema.object({
   page: schema.string().regex(/^\d+$/).optional(),
@@ -30,7 +30,7 @@ function validateInputs(req: NextApiRequest): ValidateInputsOutput {
       (issue) => `${issue.path[0]} must be a number`,
     );
 
-    throw new ServerControllerBadRequest(
+    throw new HttpBadRequestException(
       `Invalid query parameters. ${errors.join(", ")}`,
     );
   }
@@ -59,14 +59,12 @@ export default async function (
     const todos = await todoRepository.get(params);
     res.status(200).json(todos);
   } catch (error: unknown) {
-    if (error instanceof ServerControllerBadRequest) {
-      res.status(400).json(error.toObject());
-      return;
+    if (error instanceof HttpBadRequestException) {
+      return res.status(error.status).json(error.toObject());
     }
     if (error instanceof Error) {
-      res
-        .status(500)
-        .json(new ServerControllerGeneralException(error.message).toObject());
+      const genericError = new HttpInternalServerErrorException(error.message);
+      return res.status(genericError.status).json(genericError.toObject());
     }
   }
 }

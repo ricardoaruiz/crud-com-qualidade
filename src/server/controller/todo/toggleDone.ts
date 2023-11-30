@@ -1,9 +1,9 @@
 import { z as schema } from "zod";
 import { NextApiRequest, NextApiResponse } from "next";
 import { todoRepository } from "@server/repository";
-import { ServerRepositoryNotFound } from "@server/repository/exceptions/ServerRepositoryNotFound";
-import { ServerControllerBadRequest } from "@server/controller/exceptions/ServerControllerBadRequest";
-import { ServerControllerGeneralException } from "../exceptions/ServerControllerGeneralException";
+import { HttpBadRequestException } from "@server/infra/exceptions/HttpBadRequestException";
+import { HttpNotFoundException } from "@server/infra/exceptions/HttpNotFoundException";
+import { HttpInternalServerErrorException } from "@server/infra/exceptions/HttpInternalServerErrorException";
 
 interface ValidateInputsOutput {
   id: string;
@@ -19,7 +19,7 @@ function validateInputs(req: NextApiRequest): ValidateInputsOutput {
   const parsedParams = schema.string().uuid().safeParse(req.query.id);
 
   if (!parsedParams.success) {
-    throw new ServerControllerBadRequest("Invalid id.");
+    throw new HttpBadRequestException("Invalid id.");
   }
 
   return {
@@ -45,20 +45,19 @@ export default async function (
 
     res.status(200).json(updatedTodo);
   } catch (error: unknown) {
-    if (error instanceof ServerControllerBadRequest) {
-      res.status(400).json(error.toObject());
-      return;
+    if (error instanceof HttpBadRequestException) {
+      return res.status(error.status).json(error.toObject());
     }
-    if (error instanceof ServerRepositoryNotFound) {
-      res
-        .status(404)
-        .json(new ServerControllerGeneralException(error.message).toObject());
-      return;
+    if (error instanceof HttpNotFoundException) {
+      return res.status(error.status).json(error.toObject());
     }
     if (error instanceof Error) {
-      res
-        .status(500)
-        .json(new ServerControllerGeneralException(error.message).toObject());
+      const unexpectedError = new HttpInternalServerErrorException(
+        error.message,
+      );
+      return res
+        .status(unexpectedError.status)
+        .json(unexpectedError.toObject());
     }
   }
 }

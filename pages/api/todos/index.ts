@@ -1,6 +1,12 @@
 import { todoController } from "@server/controller/todo";
 import { NextApiRequest, NextApiResponse } from "next";
 
+export const config = {
+  api: {
+    externalResolver: true,
+  },
+};
+
 /**
  * Handles the API request and routes it to the appropriate controller method based on the request method.
  *
@@ -8,7 +14,10 @@ import { NextApiRequest, NextApiResponse } from "next";
  * @param {NextApiResponse} res - The API response object.
  * @return {void}
  */
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
+export default function handler(
+  req: NextApiRequest,
+  res: NextApiResponse,
+): void {
   switch (req.method) {
     case "POST": {
       todoController.create(req, res);

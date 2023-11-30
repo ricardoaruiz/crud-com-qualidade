@@ -1,0 +1,81 @@
+{
+    "client": "Thunder Client",
+    "collectionName": "Crud com qualidade",
+    "dateExported": "2023-11-30T01:36:42.740Z",
+    "version": "1.1",
+    "folders": [],
+    "requests": [
+        {
+            "_id": "859721a1-a68d-40e3-a65c-597848b061ed",
+            "colId": "4f6bdbee-b4e3-4535-a6e1-b863fe00b3a6",
+            "containerId": "",
+            "name": "Read Todos",
+            "url": "http://localhost:3000/api/todos?page=1&limit=5",
+            "method": "GET",
+            "sortNum": 10000,
+            "created": "2023-11-30T01:25:55.364Z",
+            "modified": "2023-11-30T01:26:56.363Z",
+            "headers": [],
+            "params": [
+                {
+                    "name": "page",
+                    "value": "1",
+                    "isPath": false
+                },
+                {
+                    "name": "limit",
+                    "value": "5",
+                    "isPath": false
+                }
+            ],
+            "tests": []
+        },
+        {
+            "_id": "9c79ee15-e608-4dc7-a0dd-31f4b10601fa",
+            "colId": "4f6bdbee-b4e3-4535-a6e1-b863fe00b3a6",
+            "containerId": "",
+            "name": "Create Todo",
+            "url": "http://localhost:3000/api/todos",
+            "method": "POST",
+            "sortNum": 20000,
+            "created": "2023-11-30T01:27:03.397Z",
+            "modified": "2023-11-30T01:28:33.410Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"content\": \"Todo #000001\"\n}",
+                "form": []
+            },
+            "tests": []
+        },
+        {
+            "_id": "8d8fc8b7-b7ae-4a4d-a63a-a11eb14ae20c",
+            "colId": "4f6bdbee-b4e3-4535-a6e1-b863fe00b3a6",
+            "containerId": "",
+            "name": "Toggle Done Todo",
+            "url": "http://localhost:3000/api/todos/70c669e3-5482-441d-909f-ad9faef9cac4/toggle-done",
+            "method": "PUT",
+            "sortNum": 30000,
+            "created": "2023-11-30T01:28:43.990Z",
+            "modified": "2023-11-30T01:36:03.339Z",
+            "headers": [],
+            "params": [],
+            "tests": []
+        },
+        {
+            "_id": "0299031c-ef76-4542-a62e-2f44aefd2d6e",
+            "colId": "4f6bdbee-b4e3-4535-a6e1-b863fe00b3a6",
+            "containerId": "",
+            "name": "Remove Todo",
+            "url": "http://localhost:3000/api/todos/5a48bd79-bb23-4fb2-b2de-64eeddbac290",
+            "method": "DELETE",
+            "sortNum": 40000,
+            "created": "2023-11-30T01:32:04.997Z",
+            "modified": "2023-11-30T01:34:31.518Z",
+            "headers": [],
+            "params": [],
+            "tests": []
+        }
+    ]
+}
