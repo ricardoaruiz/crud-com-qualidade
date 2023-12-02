@@ -28,13 +28,13 @@
       "id": "36e0ec5d-092f-4ce9-873d-2067f2cbd7a1",
       "date": "2023-11-29T01:13:23.913Z",
       "content": "Teste Todo #5",
-      "done": false
+      "done": true
     },
     {
       "id": "5b1cf02b-36af-4dd5-a0be-dffe7f9dcd52",
       "date": "2023-11-29T01:13:26.806Z",
       "content": "Teste Todo #7",
-      "done": false
+      "done": true
     },
     {
       "id": "1f99061e-f97f-48e6-8df9-0b886e921d04",

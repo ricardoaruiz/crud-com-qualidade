@@ -36,7 +36,6 @@ function validateInputs(req: NextApiRequest): ValidateInputsOutput {
     );
   }
   const { page, limit, search } = parsedParams.data;
-
   return {
     page: Number(page),
     limit: Number(limit),

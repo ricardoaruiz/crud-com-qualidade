@@ -28,7 +28,9 @@ type LoadTodosParams = {
 };
 
 const CreateTodoFormSchema = z.object({
-  content: z.string().min(1, { message: "O conteúdo deve ser informado" }),
+  content: z
+    .string()
+    .min(10, { message: "O conteúdo deve ter pelo menos 10 caracteres" }),
 });
 
 type CreateTodoFormData = z.infer<typeof CreateTodoFormSchema>;
@@ -271,7 +273,12 @@ function HomePage() {
           <tbody>
             {isLoading && (
               <tr>
-                <td colSpan={4} align="center" style={{ textAlign: "center" }}>
+                <td
+                  colSpan={4}
+                  align="center"
+                  style={{ textAlign: "center" }}
+                  aria-label="Carregando"
+                >
                   Carregando...
                 </td>
               </tr>
@@ -279,7 +286,11 @@ function HomePage() {
 
             {!isLoading && noDataFound && (
               <tr>
-                <td colSpan={4} align="center">
+                <td
+                  colSpan={4}
+                  align="center"
+                  aria-label="Nenhum item encontrado"
+                >
                   Nenhum item encontrado
                 </td>
               </tr>

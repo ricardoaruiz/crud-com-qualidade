@@ -4,12 +4,23 @@ module.exports = {
     browser: true,
     es2021: true,
     node: true,
+    "cypress/globals": true,
   },
-  plugins: ["react", "react-hooks", "prettier", "@typescript-eslint"],
+  plugins: [
+    "react",
+    "react-hooks",
+    "prettier",
+    "@typescript-eslint",
+    "cypress",
+    "chai-friendly",
+    "no-only-tests",
+  ],
   extends: [
     "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
     "plugin:react/recommended",
+    "plugin:chai-friendly/recommended",
+    "plugin:cypress/recommended",
     "plugin:prettier/recommended",
   ],
   overrides: [],
@@ -29,5 +40,6 @@ module.exports = {
     "react/no-unknown-property": ["error", { ignore: ["jsx", "global"] }],
     "react-hooks/rules-of-hooks": "error", // Checks rules of Hooks
     "react-hooks/exhaustive-deps": "warn", // Checks effect dependencies
+    "no-only-tests/no-only-tests": "error",
   },
 };
