@@ -1,0 +1,15 @@
+name: "[CI] Continuous Integration"
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      ## [Commons_CI_Steps]
+      - uses: "actions/checkout@v3"
+      #####################
+      - name: "Lint"
+        uses: "npm run lint"
