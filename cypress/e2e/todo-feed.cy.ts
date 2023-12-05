@@ -32,7 +32,7 @@ describe("/ - Todos Feed", () => {
     cy.get(buttonAddTodo).should("be.visible");
     cy.get(inputFilterTodo).should("be.visible");
     cy.get(loadingTodoMessage).should("be.visible");
-    cy.get(notFoundTodoMessage).should("be.visible");
+    cy.get(notFoundTodoMessage).should("not.be.visible");
   });
 
   it("when load, renders the page with todos", () => {
