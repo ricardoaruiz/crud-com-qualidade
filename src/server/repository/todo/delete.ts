@@ -1,6 +1,6 @@
-import { deleteTodo } from "@db-crud-todo";
-import { todoRepository } from ".";
-import { HttpNotFoundException } from "@server/infra/exceptions/HttpNotFoundException";
+import { supabase } from "@server/infra/supabase";
+import findOne from "./findOne";
+import { HttpInternalServerErrorException } from "@server/infra/exceptions";
 
 interface DelteTodoInput {
   id: string;
@@ -14,11 +14,14 @@ interface DelteTodoInput {
  * @return {Promise<void>} A promise that resolves with no value.
  */
 export default async function ({ id }: DelteTodoInput): Promise<void> {
-  const todoToDelete = await todoRepository.findOne({ id });
+  const todoToRemove = await findOne({ id });
 
-  if (!todoToDelete) {
-    throw new HttpNotFoundException("Todo not found");
+  const { error } = await supabase
+    .from("todos")
+    .delete()
+    .eq("id", todoToRemove?.id);
+
+  if (error) {
+    throw new HttpInternalServerErrorException("Todo not found");
   }
-
-  deleteTodo(id);
 }

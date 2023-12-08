@@ -1,5 +1,6 @@
 import { supabase } from "@server/infra/supabase";
 import { Todo, TodoSchema } from "@server/schema/todo";
+import { HttpInvalidParsedDataException } from "@server/infra/exceptions";
 
 interface TodoRepositoryGetParams {
   page?: number;
@@ -52,7 +53,9 @@ export default async function ({
   const parsedData = TodoSchema.array().safeParse(data);
 
   if (!parsedData.success) {
-    throw new Error("Invalid data returned from database");
+    throw new HttpInvalidParsedDataException(
+      "Invalid data returned from database",
+    );
   }
 
   const todos = parsedData.data;
