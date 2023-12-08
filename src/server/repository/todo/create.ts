@@ -1,6 +1,5 @@
 import { supabase } from "@server/infra/supabase";
-import { TodoSchema } from "@server/schema/todo";
-import { Todo } from "core/types";
+import { Todo, TodoSchema } from "@server/schema/todo";
 import { HttpInvalidParsedDataException } from "@server/infra/exceptions";
 
 /**

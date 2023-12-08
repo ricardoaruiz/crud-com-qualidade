@@ -1,6 +1,9 @@
 import { supabase } from "@server/infra/supabase";
 import { Todo, TodoSchema } from "@server/schema/todo";
-import { HttpInvalidParsedDataException } from "@server/infra/exceptions";
+import {
+  HttpInternalServerErrorException,
+  HttpInvalidParsedDataException,
+} from "@server/infra/exceptions";
 
 interface TodoRepositoryGetParams {
   page?: number;
@@ -47,7 +50,7 @@ export default async function ({
   const { data, count, error } = await query;
 
   if (error) {
-    throw new Error("Failed to fetch todos");
+    throw new HttpInternalServerErrorException("Failed to fetch todos");
   }
 
   const parsedData = TodoSchema.array().safeParse(data);

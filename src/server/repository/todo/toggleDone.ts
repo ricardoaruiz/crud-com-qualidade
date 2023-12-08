@@ -1,7 +1,7 @@
-import { markTodoAsDone } from "@db-crud-todo";
-import { Todo } from "core/types";
+import { supabase } from "@server/infra/supabase";
+import { Todo, TodoSchema } from "@server/schema/todo";
 import { todoRepository } from ".";
-import { HttpNotFoundException } from "@server/infra/exceptions/HttpNotFoundException";
+import { HttpInvalidParsedDataException } from "@server/infra/exceptions";
 
 type UpdateTodoInput = {
   id: string;
@@ -15,11 +15,19 @@ type UpdateTodoInput = {
 export default async function ({ id }: UpdateTodoInput): Promise<Todo> {
   const foundTodo = await todoRepository.findOne({ id });
 
-  if (!foundTodo) {
-    throw new HttpNotFoundException("Todo not found.");
+  const { data } = await supabase
+    .from("todos")
+    .update({ done: !foundTodo?.done })
+    .eq("id", id)
+    .select();
+
+  const parsedData = TodoSchema.array().safeParse(data);
+
+  if (!parsedData.success) {
+    throw new HttpInvalidParsedDataException(
+      "Invalid updated todo format received from database",
+    );
   }
 
-  const done = !foundTodo.done;
-
-  return markTodoAsDone(id, done);
+  return parsedData.data[0];
 }
