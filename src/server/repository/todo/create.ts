@@ -1,5 +1,7 @@
-import { createTodo } from "@db-crud-todo";
+import { supabase } from "@server/infra/supabase";
+import { TodoSchema } from "@server/schema/todo";
 import { Todo } from "core/types";
+import { HttpInvalidParsedDataException } from "@server/infra/exceptions";
 
 /**
  * Creates a new post with the given content.
@@ -8,5 +10,22 @@ import { Todo } from "core/types";
  * @return {Promise<Todo>} - A Promise that resolves to the created post.
  */
 export default async function (content: string): Promise<Todo> {
-  return createTodo(content);
+  const { data } = await supabase
+    .from("todos")
+    .insert([
+      {
+        content,
+      },
+    ])
+    .select("*");
+
+  const parsedData = TodoSchema.array().safeParse(data);
+
+  if (!parsedData.success) {
+    throw new HttpInvalidParsedDataException(
+      "Invalid created todo format received from database",
+    );
+  }
+
+  return parsedData.data[0];
 }
