@@ -1,5 +1,5 @@
-import { readTodos } from "@db-crud-todo";
-import { Todo } from "@ui/schema/todo";
+import { supabase } from "@server/infra/supabase";
+import { Todo, TodoSchema } from "@server/schema/todo";
 
 interface TodoRepositoryGetParams {
   page?: number;
@@ -27,26 +27,37 @@ export default async function ({
   limit,
   search,
 }: TodoRepositoryGetParams): Promise<TodosRepositoryGetOutput> {
-  const TODOS_FROM_DB = readTodos()
-    .reverse()
-    .filter((todo) => {
-      if (search) {
-        return todo.content
-          .toLocaleLowerCase()
-          .includes(search.toLocaleLowerCase());
-      }
-      return true;
-    });
-
   const currentPage = page || 1;
   const currentLimit = limit || 10;
 
   const startIndex = (currentPage - 1) * currentLimit;
-  const endIndex = currentPage * currentLimit;
+  const endIndex = currentPage * currentLimit - 1;
 
-  const todos = TODOS_FROM_DB.slice(startIndex, endIndex);
-  const pages = Math.ceil(TODOS_FROM_DB.length / currentLimit);
-  const total = TODOS_FROM_DB.length;
+  const query = supabase.from("todos").select("*", {
+    count: "exact",
+  });
+
+  if (search) {
+    query.ilike("content", `%${search}%`);
+  }
+
+  query.range(startIndex, endIndex);
+
+  const { data, count, error } = await query;
+
+  if (error) {
+    throw new Error("Failed to fetch todos");
+  }
+
+  const parsedData = TodoSchema.array().safeParse(data);
+
+  if (!parsedData.success) {
+    throw new Error("Invalid data returned from database");
+  }
+
+  const todos = parsedData.data;
+  const total = count || todos.length;
+  const pages = Math.ceil(total / currentLimit);
 
   return {
     todos,
