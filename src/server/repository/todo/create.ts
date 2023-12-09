@@ -1,4 +1,4 @@
-import { supabase } from "@server/infra/supabase";
+import { SUPABASE_FROM } from "@server/infra/supabase/constants";
 import { Todo, TodoSchema } from "@server/schema/todo";
 import { HttpInvalidParsedDataException } from "@server/infra/exceptions";
 
@@ -9,16 +9,16 @@ import { HttpInvalidParsedDataException } from "@server/infra/exceptions";
  * @return {Promise<Todo>} - A Promise that resolves to the created post.
  */
 export default async function (content: string): Promise<Todo> {
-  const { data } = await supabase
-    .from("todos")
+  const { data } = await SUPABASE_FROM.todos()
     .insert([
       {
         content,
       },
     ])
-    .select("*");
+    .select()
+    .single();
 
-  const parsedData = TodoSchema.array().safeParse(data);
+  const parsedData = TodoSchema.safeParse(data);
 
   if (!parsedData.success) {
     throw new HttpInvalidParsedDataException(
@@ -26,5 +26,5 @@ export default async function (content: string): Promise<Todo> {
     );
   }
 
-  return parsedData.data[0];
+  return parsedData.data;
 }

@@ -1,6 +1,8 @@
-import { supabase } from "@server/infra/supabase";
 import { Todo, TodoSchema } from "@server/schema/todo";
-import { ERROR_CODES } from "@server/infra/supabase/constants";
+import {
+  SUPABASE_ERROR_CODES,
+  SUPABASE_FROM,
+} from "@server/infra/supabase/constants";
 import {
   HttpInternalServerErrorException,
   HttpInvalidParsedDataException,
@@ -13,15 +15,14 @@ interface TodoRepositoryFindOneParams {
 
 export default async function ({
   id,
-}: TodoRepositoryFindOneParams): Promise<Todo | undefined> {
-  const { error, data } = await supabase
-    .from("todos")
+}: TodoRepositoryFindOneParams): Promise<Todo> {
+  const { error, data } = await SUPABASE_FROM.todos()
     .select("*")
     .eq("id", id)
     .single();
 
   if (error) {
-    if (error.code === ERROR_CODES.NOT_FOUND) {
+    if (error.code === SUPABASE_ERROR_CODES.NOT_FOUND) {
       throw new HttpNotFoundException("Todo not found");
     }
     throw new HttpInternalServerErrorException(

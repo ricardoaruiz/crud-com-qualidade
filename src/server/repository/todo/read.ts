@@ -1,4 +1,4 @@
-import { supabase } from "@server/infra/supabase";
+import { SUPABASE_FROM } from "@server/infra/supabase/constants";
 import { Todo, TodoSchema } from "@server/schema/todo";
 import {
   HttpInternalServerErrorException,
@@ -37,9 +37,11 @@ export default async function ({
   const startIndex = (currentPage - 1) * currentLimit;
   const endIndex = currentPage * currentLimit - 1;
 
-  const query = supabase.from("todos").select("*", {
-    count: "exact",
-  });
+  const query = SUPABASE_FROM.todos()
+    .select("*", {
+      count: "exact",
+    })
+    .order("date", { ascending: false });
 
   if (search) {
     query.ilike("content", `%${search}%`);

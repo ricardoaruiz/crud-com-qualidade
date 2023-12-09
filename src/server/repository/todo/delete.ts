@@ -1,4 +1,4 @@
-import { supabase } from "@server/infra/supabase";
+import { SUPABASE_FROM } from "@server/infra/supabase/constants";
 import findOne from "./findOne";
 
 interface DelteTodoInput {
@@ -14,9 +14,7 @@ interface DelteTodoInput {
  */
 export default async function ({ id }: DelteTodoInput): Promise<void> {
   const todoToRemove = await findOne({ id });
-
-  await supabase
-    .from("todos")
+  await SUPABASE_FROM.todos()
     .delete()
     .eq("id", todoToRemove?.id);
 }

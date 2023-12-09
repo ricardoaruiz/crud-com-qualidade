@@ -108,7 +108,7 @@ function HomePage() {
         .create(content)
         .then(() => {
           setValueCreateTodo("content", "");
-          loadTodos({ page, limit: PAGE_LIMIT * page });
+          loadTodos({ page, limit: PAGE_LIMIT });
         })
         .catch((error) => {
           const errorController = error as UIControllerException;
