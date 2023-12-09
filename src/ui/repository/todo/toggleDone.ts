@@ -1,6 +1,5 @@
 import { ServerErrorData } from "@server/infra/exceptions/ServerErrorData";
-import { TodoSchema } from "@ui/schema/todo";
-import { Todo } from "core/types";
+import { Todo, TodoSchema } from "@ui/schema/todo";
 
 const TODOS_URL = "api/todos";
 
